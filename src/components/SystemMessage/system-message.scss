@@ -1,0 +1,12 @@
+@import "./src/util/variables";
+
+.system-message {
+  @extend %col-nowrap;
+  @extend %regular-font;
+  background-color: $header-gray;
+  padding: 2rem 2.5rem;
+  border-top-right-radius: .125rem;
+  border-bottom-right-radius: .125rem;
+  border-left: .25rem solid rgba($error-red, .5);
+  cursor: default;
+}

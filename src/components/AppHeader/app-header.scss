@@ -1,0 +1,26 @@
+@import "./src/util/variables";
+
+.header {
+  @extend %row-nowrap;
+  height: 3.75rem;
+  background-color: $header-gray;
+  justify-content: center;
+
+  &__content {
+    @extend %row-nowrap;
+    align-items: center;
+    flex: 1 1 auto;
+    max-width: 48rem;
+
+    &__l {
+      flex: 1 1 auto;
+    }
+
+    &__r {
+      @extend %row-nowrap;
+      justify-content: flex-end;
+      flex: 1 1 auto;
+      color: $white;
+    }
+  }
+}

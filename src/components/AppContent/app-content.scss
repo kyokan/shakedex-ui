@@ -1,0 +1,8 @@
+@import "./src/util/variables";
+
+.app-content {
+  @extend %col-nowrap;
+  margin: 0 auto;
+  color: $white;
+  width: 48rem;
+}

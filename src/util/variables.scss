@@ -1,0 +1,31 @@
+$background-gray: #151515;
+$header-gray: #2C2C2C;
+$white: #FFFFFF;
+$black: #000000;
+
+$error-red: #ff0000;
+$btn-blue: #00B2FF;
+
+%flex {
+  display: flex;
+}
+
+%col-nowrap {
+  @extend %flex;
+  flex-flow: column nowrap;
+}
+
+%row-nowrap {
+  @extend %flex;
+  flex-flow: row nowrap;
+}
+
+%regular-font {
+  font-size: 1rem;
+  line-height: 1.3125;
+}
+
+%bold {
+  font-weight: 600;
+}
+

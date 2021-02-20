@@ -1,0 +1,27 @@
+@import "./src/util/variables";
+
+.button {
+  @extend %regular-font;
+  @extend %bold;
+  width: fit-content;
+  cursor: pointer;
+  padding: .5rem 1rem;
+  border-radius: .25rem;
+  border: none;
+  outline: none;
+  user-select: none;
+}
+
+.button--primary {
+  background-color: $btn-blue;
+  color: $white;
+  transition: background-color 150ms ease-in-out;
+
+  &:hover {
+    background-color: lighten($btn-blue, 5);
+  }
+
+  &:active {
+    background-color: darken($btn-blue, 5);
+  }
+}
