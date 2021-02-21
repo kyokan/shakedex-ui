@@ -1,8 +1,10 @@
 import React, {useCallback} from 'react';
-import {Redirect, Route, Switch, useHistory} from "react-router";
-import "./app-header.scss";
+import {useHistory} from "react-router";
 import Icon from "../Icon";
 import Logo from "../../../static/assets/icons/museum.svg";
+
+import "./app-header.scss";
+
 
 export default function AppHeader() {
   const history = useHistory();
@@ -14,7 +16,7 @@ export default function AppHeader() {
         <div className="header__content__l">
           <Icon
             url={Logo}
-            width={32}
+            size={2.25}
             onClick={goHome}
           />
         </div>

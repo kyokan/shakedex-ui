@@ -1,0 +1,50 @@
+@import "./src/util/variables";
+
+.auction-overview {
+  padding: 1rem;
+
+  .icon {
+    color: $white;
+    opacity: .1;
+    transition: opacity 150ms ease-in-out;
+
+    &:hover {
+      opacity: .2;
+    }
+
+    &:active {
+      opacity: .3;
+    }
+  }
+
+  &__fav-icon {
+    margin-right: 1rem;
+
+    &--bookmarked {
+      color: $error-red !important;
+      opacity: 1 !important;
+    }
+  }
+
+  &__name {
+    @extend %h1-font;
+    @extend %bold;
+    cursor: default;
+    color: $white;
+    text-transform: uppercase;
+  }
+
+  &__l {
+    @extend %row-nowrap;
+    flex: 1 1 auto;
+    align-items: center;
+  }
+
+  &__r {
+    @extend %row-nowrap;
+    flex: 0 0 auto;
+    align-items: center;
+
+
+  }
+}

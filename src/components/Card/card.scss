@@ -1,0 +1,22 @@
+@import "./src/util/variables";
+
+.card {
+  @extend %row-nowrap;
+  background-color: $header-gray;
+  border: 1px solid rgba($white, .1);
+  border-radius: .1875rem;
+  color: $white;
+  cursor: default;
+
+  &__header {
+    @extend %row-nowrap;
+    padding: 1rem;
+    border-bottom: 1px solid rgba($white, .1);
+
+    &__title {
+      @extend %h2-font;
+      @extend %bold;
+      text-transform: uppercase;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+@import "./src/util/variables";
+
+.auction-status {
+  &__l,
+  &__r {
+    @extend %col-nowrap;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    padding: 2rem;
+  }
+
+  &__separator {
+    width: 1px;
+    background-color: rgba($white, .1);
+  }
+
+  &__label {
+    color: rgba($white, .2);
+    text-transform: uppercase;
+  }
+
+  &__value {
+    @extend %bold;
+    @extend %h2-font;
+    margin-top: .25rem;
+    color: rgba($white, .9);
+  }
+}

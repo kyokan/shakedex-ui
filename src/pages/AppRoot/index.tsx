@@ -5,6 +5,7 @@ import AppHeader from "../../components/AppHeader";
 
 import "./app.scss";
 import ListingView from "../ListingVIew";
+import TLDAuctionView from "../TLDAuctionView";
 
 
 export default function AppRoot() {
@@ -12,7 +13,14 @@ export default function AppRoot() {
     <div className="app">
       <AppHeader />
       <Switch>
-        <Route path="/" component={ListingView} />
+        <Route
+          path="/a/:tld"
+          component={TLDAuctionView}
+        />
+        <Route
+          path="/"
+          component={ListingView}
+        />
         <Route>
           <Redirect to="/" />
         </Route>

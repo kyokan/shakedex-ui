@@ -1,0 +1,12 @@
+@import "./src/util/variables";
+
+.auction {
+  @extend %col-nowrap;
+  max-width: 48rem;
+  margin: 2rem auto;
+
+  .auction-status,
+  .domain-detail {
+    margin-top: 1rem;
+  }
+}

@@ -1,0 +1,28 @@
+@import "./src/util/variables";
+
+.domain-detail {
+  @extend %col-nowrap;
+
+  &__content {
+    padding: 2rem;
+
+    &__row {
+      @extend %col-nowrap;
+
+      &__label {
+        @extend %regular-font;
+        color: rgba($white, .2);
+        text-transform: uppercase;
+      }
+
+      &__value {
+        @extend %h2-font;
+        margin-top: .25rem;
+      }
+    }
+
+    &__row + &__row {
+      margin-top: 1rem;
+    }
+  }
+}
