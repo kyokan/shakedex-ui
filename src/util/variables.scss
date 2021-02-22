@@ -25,6 +25,11 @@ $btn-blue: #00B2FF;
   line-height: 1.3125;
 }
 
+%lite-font {
+  font-size: .875rem;
+  line-height: 1.3125;
+}
+
 %regular-font {
   font-size: 1rem;
   line-height: 1.3125;
@@ -49,3 +54,40 @@ $btn-blue: #00B2FF;
   font-weight: 600;
 }
 
+%ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table {
+  @extend %col-nowrap;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  @extend %bold;
+  @extend %lite-font;
+  flex: 0 0 auto;
+  background-color: $black;
+  color: rgba($white, .5);
+  text-transform: uppercase;
+}
+
+tr {
+  @extend %row-nowrap;
+}
+
+td {
+  align-items: flex-start;
+  flex: 1 1 auto;
+  padding: .75rem 1.5rem;
+}
+
+tbody {
+  flex: 1 1 auto;
+  td {
+    @extend %lite-font;
+  }
+}

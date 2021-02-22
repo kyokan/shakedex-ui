@@ -12,19 +12,21 @@ export default function AppRoot() {
   return (
     <div className="app">
       <AppHeader />
-      <Switch>
-        <Route
-          path="/a/:tld"
-          component={TLDAuctionView}
-        />
-        <Route
-          path="/"
-          component={ListingView}
-        />
-        <Route>
-          <Redirect to="/" />
-        </Route>
-      </Switch>
+      <div className="app__content">
+        <Switch>
+          <Route
+            path="/a/:tld"
+            component={TLDAuctionView}
+          />
+          <Route
+            path="/"
+            component={ListingView}
+          />
+          <Route>
+            <Redirect to="/" />
+          </Route>
+        </Switch>
+      </div>
     </div>
   )
 }

@@ -21,7 +21,7 @@ export default function DomainDetailCard(props: Props) {
       <CardHeader title="Domain Info" />
       <div className="domain-detail__content">
         <Row label="Owner">
-          {ellipsify(address, 8, 8)}
+          {address ? ellipsify(address, 8, 8) : 'N/A'}
         </Row>
         <Row label="Email">
 

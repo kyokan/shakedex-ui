@@ -1,0 +1,29 @@
+@import "./src/util/variables";
+
+.toggle {
+  @extend %row-nowrap;
+  align-items: center;
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: 1.5rem;
+  background-color: $black;
+  cursor: pointer;
+
+  &:before {
+    display: block;
+    content: '';
+    height: 1.125rem;
+    width: 1.125rem;
+    margin: 0 .25rem;
+    border-radius: 1.25rem;
+    background-color: rgba($btn-blue, .2);
+    transition: margin 150ms ease-in-out, background-color 200ms ease-in-out;
+  }
+
+  &--selected {
+    &:before {
+      background-color: rgba($btn-blue, 1);
+      margin-left: 1.6125rem;
+    }
+  }
+}

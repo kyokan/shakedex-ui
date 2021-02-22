@@ -8,6 +8,7 @@ import DomainDetailCard from "../../components/DomainDetailCard";
 import {fetchDomain} from "../../ducks/domains";
 
 import "./auction.scss";
+import Comparables from "../../components/Comparables";
 
 export default function TLDAuctionView() {
   const { params } = useRouteMatch<{tld: string}>();
@@ -23,6 +24,7 @@ export default function TLDAuctionView() {
       <AuctionOverview tld={tld} />
       <AuctionStatusCard tld={tld} />
       <DomainDetailCard tld={tld} />
+      <Comparables tld={tld} />
     </div>
   )
 }

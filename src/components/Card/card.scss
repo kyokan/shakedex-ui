@@ -10,13 +10,20 @@
 
   &__header {
     @extend %row-nowrap;
+    align-items: center;
     padding: 1rem;
     border-bottom: 1px solid rgba($white, .1);
 
     &__title {
-      @extend %h2-font;
+      @extend %h3-font;
       @extend %bold;
       text-transform: uppercase;
+    }
+
+    &__actions {
+      @extend %row-nowrap;
+      flex: 1 1 auto;
+      justify-content: flex-end;
     }
   }
 }
