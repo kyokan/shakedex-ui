@@ -8,6 +8,7 @@ import ListingView from "../ListingVIew";
 import TLDAuctionView from "../TLDAuctionView";
 import {useDispatch} from "react-redux";
 import {fetchHandshake} from "../../ducks/handshake";
+import {SettingsView} from "../SettingsView";
 
 
 export default function AppRoot() {
@@ -25,6 +26,10 @@ export default function AppRoot() {
           <Route
             path="/a/:tld"
             component={TLDAuctionView}
+          />
+          <Route
+            path="/settings"
+            component={SettingsView}
           />
           <Route
             path="/"

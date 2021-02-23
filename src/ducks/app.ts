@@ -1,3 +1,5 @@
+import {shallowEqual, useSelector} from "react-redux";
+
 enum AppActionTypes {
   INIT_APP = 'app/initApp',
 }
@@ -15,7 +17,7 @@ type AppAction = {
 }
 
 const initialState: AppState = {
-  apiHost: 'http://5pi.io/hsd',
+  apiHost: 'https://5pi.io/hsd',
   apiKey: '028b0965978137223fb9d132de96993c',
 };
 
@@ -27,3 +29,9 @@ export default function appReducer(state: AppState = initialState, action: AppAc
       return state;
   }
 }
+
+export const useAPI = () => {
+  return useSelector((state: { app: AppState}) => {
+    return state.app;
+  }, shallowEqual);
+};

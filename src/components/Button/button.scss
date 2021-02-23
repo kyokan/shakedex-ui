@@ -14,13 +14,57 @@
 .button--primary {
   background-color: $btn-blue;
   color: $white;
+  border: 2px solid $btn-blue;
   transition: background-color 150ms ease-in-out;
 
   &:hover {
     background-color: lighten($btn-blue, 5);
+    border: 2px solid lighten($btn-blue, 5);
   }
 
   &:active {
     background-color: darken($btn-blue, 5);
+    border: 2px solid darken($btn-blue, 5);
   }
+
+  &:disabled {
+    &:hover,
+    &:active {
+      background-color: $btn-blue;
+      color: $white;
+      border: 2px solid $btn-blue;
+    }
+  }
+}
+
+.button--secondary {
+  box-sizing: border-box;
+  background-color: transparent;
+  color: $btn-blue;
+  border: 2px solid $btn-blue;
+  transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+
+  &:hover {
+     background-color: rgba($btn-blue, .2);
+     color: $white;
+   }
+
+  &:active {
+    background-color: rgba($btn-blue, .4);
+    color: $white;
+  }
+
+  &:disabled {
+    &:hover,
+    &:active {
+      background-color: transparent;
+      color: $btn-blue;
+      border: 2px solid $btn-blue;
+    }
+  }
+}
+
+.button:disabled {
+  opacity: .5;
+  cursor: default;
 }

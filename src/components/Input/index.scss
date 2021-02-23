@@ -1,0 +1,21 @@
+@import "./src/util/variables";
+
+.input {
+  @extend %regular-font;
+  padding: .5rem 1rem;
+  border: 1px solid rgba($black, .2);
+  border-radius: .125rem;
+  outline: none;
+  background-color: rgba($black, .1);
+  width: calc(100% - 2rem);
+  color: $white;
+
+  &::placeholder {
+    color: rgba($white, .2);
+  }
+
+  &:focus-within {
+    background-color: rgba($black, .2);
+    border-bottom: 1px solid $btn-blue;
+  }
+}

@@ -1,0 +1,42 @@
+@import "./src/util/variables";
+
+.settings {
+
+  &__card {
+    margin-top: 2rem;
+  }
+
+  &__content {
+    @extend %col-nowrap;
+    padding: 1rem;
+  }
+
+  &__group {
+    @extend %col-nowrap;
+    margin-bottom: 1rem;
+
+    &__label {
+      @extend %lite-font;
+      @extend %bold;
+      text-transform: uppercase;
+      color: rgba($white, .5);
+    }
+
+    &__content {
+      margin-top: .5rem;
+
+      .input {
+      }
+    }
+  }
+
+  &__actions {
+    @extend %row-nowrap;
+    padding: 1rem;
+    justify-content: flex-end;
+
+    .button {
+      margin-left: .5rem;
+    }
+  }
+}
