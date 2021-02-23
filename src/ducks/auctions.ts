@@ -3,7 +3,7 @@ import deepEqual from 'deep-equal';
 import {useSelector} from "react-redux";
 import {Auction} from "../util/auction";
 
-enum ActionTypes {
+export enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
   ADD_LOCAL_AUCTION = 'auctions/addLocalAuction',
 }
@@ -15,7 +15,7 @@ type Action<payload> = {
   error?: boolean;
 }
 
-type State = {
+export type State = {
   uploading: boolean;
   local: AuctionState[];
   remote: AuctionState[];

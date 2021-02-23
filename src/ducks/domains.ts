@@ -2,7 +2,7 @@ import {Dispatch} from "redux";
 import {useSelector} from "react-redux";
 import deepEqual from "deep-equal";
 
-enum ActionTypes {
+export enum ActionTypes {
   SET_DOMAIN = 'domains/setDomain',
 }
 

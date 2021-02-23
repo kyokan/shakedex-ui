@@ -33,14 +33,14 @@ export function SettingsView() {
 
         </CardHeader>
         <div className="settings__content">
-          <SettingGroup title="API Url">
+          <SettingGroup title="Handshake RPC Url">
             <Input
               placeholder="http://127.0.0.1:12037"
               value={adjApiHost}
               onChange={e => setAdjHost(e.target.value)}
             />
           </SettingGroup>
-          <SettingGroup title="API Key">
+          <SettingGroup title="Handshake API Key">
             <Input
               placeholder="optional"
               value={adjApiKey}

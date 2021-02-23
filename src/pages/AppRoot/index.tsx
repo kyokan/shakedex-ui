@@ -9,12 +9,14 @@ import TLDAuctionView from "../TLDAuctionView";
 import {useDispatch} from "react-redux";
 import {fetchHandshake} from "../../ducks/handshake";
 import {SettingsView} from "../SettingsView";
+import {initApp} from "../../ducks/app";
 
 
 export default function AppRoot() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(initApp());
     dispatch(fetchHandshake());
   }, []);
 

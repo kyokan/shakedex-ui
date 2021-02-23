@@ -1,37 +1,39 @@
 import {shallowEqual, useSelector} from "react-redux";
 
-enum AppActionTypes {
+export enum ActionTypes {
   INIT_APP = 'app/initApp',
 }
 
-type AppState = {
+type State = {
   apiHost: string;
   apiKey: string;
 }
 
-type AppAction = {
-  type: AppActionTypes;
-  payload?: any;
+type Action<payload> = {
+  type: ActionTypes;
+  payload?: payload;
   meta?: any;
   error?: boolean;
 }
 
-const initialState: AppState = {
+const initialState: State = {
   apiHost: 'https://5pi.io/hsd',
   apiKey: '028b0965978137223fb9d132de96993c',
 };
 
-export default function appReducer(state: AppState = initialState, action: AppAction): AppState {
+export const initApp = (): Action<undefined> => ({
+  type: ActionTypes.INIT_APP,
+});
+
+export default function appReducer(state: State = initialState, action: Action<any>): State {
   switch (action.type) {
-    case AppActionTypes.INIT_APP:
-      return state;
     default:
       return state;
   }
 }
 
 export const useAPI = () => {
-  return useSelector((state: { app: AppState}) => {
+  return useSelector((state: { app: State}) => {
     return state.app;
   }, shallowEqual);
 };
