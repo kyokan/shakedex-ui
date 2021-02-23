@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Redirect, Route, Switch} from "react-router";
 
 import AppHeader from "../../components/AppHeader";
@@ -6,9 +6,17 @@ import AppHeader from "../../components/AppHeader";
 import "./app.scss";
 import ListingView from "../ListingVIew";
 import TLDAuctionView from "../TLDAuctionView";
+import {useDispatch} from "react-redux";
+import {fetchHandshake} from "../../ducks/handshake";
 
 
 export default function AppRoot() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchHandshake());
+  }, []);
+
   return (
     <div className="app">
       <AppHeader />

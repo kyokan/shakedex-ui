@@ -1,6 +1,8 @@
 @import "./src/util/variables";
 
 .auction-status {
+  @extend %row-nowrap;
+
   &__l,
   &__r {
     @extend %col-nowrap;

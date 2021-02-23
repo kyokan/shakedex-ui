@@ -3,7 +3,8 @@ enum AppActionTypes {
 }
 
 type AppState = {
-
+  apiHost: string;
+  apiKey: string;
 }
 
 type AppAction = {
@@ -14,7 +15,8 @@ type AppAction = {
 }
 
 const initialState: AppState = {
-
+  apiHost: 'http://localhost:12037',
+  apiKey: 'f744af94bed3cf493b34fa6e2a7c62a421601039',
 };
 
 export default function appReducer(state: AppState = initialState, action: AppAction): AppState {

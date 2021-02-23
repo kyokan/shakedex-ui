@@ -3,11 +3,16 @@ import thunk from "redux-thunk";
 import {createLogger} from "redux-logger";
 import app from "../ducks/app";
 import domains from "../ducks/domains";
+import auctions from "../ducks/auctions";
+import handshake from "../ducks/handshake";
 
 const rootReducer = combineReducers({
   app,
   domains,
+  auctions,
+  handshake,
 });
+
 
 export type AppRootState = ReturnType<typeof rootReducer>;
 

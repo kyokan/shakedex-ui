@@ -1,7 +1,7 @@
 @import "./src/util/variables";
 
 .card {
-  @extend %row-nowrap;
+  @extend %col-nowrap;
   background-color: $header-gray;
   border: 1px solid rgba($white, .1);
   border-radius: .1875rem;

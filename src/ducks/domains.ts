@@ -1,23 +1,20 @@
 import {Dispatch} from "redux";
 import {useSelector} from "react-redux";
 
-const RPC_URL = process.env.RPC_URL || '';
-const RPC_KEY = process.env.RPC_KEY || '';
-
 enum ActionTypes {
   SET_DOMAIN = 'domains/setDomain',
 }
 
 type Domain = {
   tld: string,
-  state: AuctionState;
+  state: DomainStatus;
   owner: {
     hash: string;
   },
   stats: DomainStats;
 }
 
-export type AuctionState = 'REVEAL' | 'BIDDING' | 'CLOSED' | 'OPENING' | null;
+export type DomainStatus = 'REVEAL' | 'BIDDING' | 'CLOSED' | 'OPENING' | null;
 
 export type DomainStats = {
   renewalPeriodStart?: number;
@@ -44,13 +41,14 @@ type AppAction<payload> = {
 
 const initialState: State = {};
 
-export const fetchDomain = (tld: string) => async (dispatch: Dispatch) => {
-  if (!RPC_URL) throw new Error('missing RPC_URL environment variable');
+export const fetchDomain = (tld: string) => async (dispatch: Dispatch, getState: () => { app: { apiHost: string; apiKey: string} }) => {
+  const { app: { apiHost, apiKey } } = getState();
+  if (!apiHost) throw new Error('missing RPC_URL environment variable');
 
-  const resp = await fetch(RPC_URL, {
+  const resp = await fetch(apiHost, {
     method: 'POST',
     headers: {
-      'Authorization': RPC_KEY && 'Basic ' + Buffer.from(`x:${RPC_KEY}`).toString('base64'),
+      'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
     },
     body: JSON.stringify({
       method: 'getnameinfo',
@@ -74,6 +72,8 @@ export const fetchDomain = (tld: string) => async (dispatch: Dispatch) => {
     revealPeriodEnd,
   } = stats || {};
 
+  console.log(result);
+
   switch (state) {
     case 'REVEAL':
       dispatch(setDomain(tld, state, ownerHash, revealPeriodStart, revealPeriodEnd));
@@ -96,11 +96,11 @@ export const fetchDomain = (tld: string) => async (dispatch: Dispatch) => {
 
 export const setDomain = (
   tld: string,
-  state: AuctionState,
+  state: DomainStatus,
   ownerHash: string,
   start: number,
   end: number,
-  ): AppAction<{tld: string; state: AuctionState; ownerHash: string; start: number; end: number}> => {
+  ): AppAction<{tld: string; state: DomainStatus; ownerHash: string; start: number; end: number}> => {
   return {
     type: ActionTypes.SET_DOMAIN,
     payload: {
@@ -124,7 +124,7 @@ export default function domainReducer(state: State = initialState, action: AppAc
 
 function reduceSetDomain(
   state: State,
-  action: AppAction<{tld: string; state: AuctionState; ownerHash: string; start: number; end: number}>
+  action: AppAction<{tld: string; state: DomainStatus; ownerHash: string; start: number; end: number}>
 ): State {
   const {
     tld,
@@ -139,7 +139,7 @@ function reduceSetDomain(
   return state;
 }
 
-function makeDomain(tld = '', state: AuctionState = null, ownerHash: string = '', start: number = -1, end: number = -1): Domain {
+function makeDomain(tld = '', state: DomainStatus = null, ownerHash: string = '', start: number = -1, end: number = -1): Domain {
   const stats: DomainStats = {};
 
   switch (state) {

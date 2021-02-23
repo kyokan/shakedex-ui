@@ -9,6 +9,7 @@ import "./app-header.scss";
 export default function AppHeader() {
   const history = useHistory();
   const goHome = useCallback(() => history.push('/'), []);
+  const goSetting = useCallback(() => history.push('/settings'), []);
 
   return (
     <div className="header">
@@ -21,7 +22,12 @@ export default function AppHeader() {
           />
         </div>
         <div className="header__content__r">
-
+          <Icon
+            className="setting-icon"
+            material="settings"
+            size={2.25}
+            onClick={goSetting}
+          />
         </div>
       </div>
     </div>

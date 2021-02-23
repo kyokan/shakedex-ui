@@ -1,6 +1,7 @@
 @import "./src/util/variables";
 
 .auction-overview {
+  @extend %row-nowrap;
   padding: 1rem;
 
   .icon {
