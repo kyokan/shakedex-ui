@@ -11,16 +11,11 @@ import "./listing-view.scss";
 import {Auction} from "../../util/auction";
 import {useHistory} from "react-router";
 import {useCurrentBlocktime, useHandshakeInfo} from "../../ducks/handshake";
-import moment from "moment";
 import {formatNumber, fromDollaryDoos} from "../../util/number";
+import classNames from "classnames";
 
 
 export default function ListingView() {
-  const localAuctions = useLocalAuctions();
-  const remoteAuctions = useRemoteAuctions();
-  const noAuctions = !localAuctions.length && !remoteAuctions.length;
-
-
   return (
     <AppContent className="listing-view">
       <SystemMessage type={SystemMessageType.error}>
@@ -29,7 +24,6 @@ export default function ListingView() {
       </SystemMessage>
       <div className="listing-view__content">
         <LocalAuctions />
-        { noAuctions && <NoListing /> }
       </div>
     </AppContent>
   )
@@ -37,14 +31,12 @@ export default function ListingView() {
 
 function LocalAuctions(): ReactElement {
   const localAuctions = useLocalAuctions();
-  const history = useHistory();
-  const currentTime = useCurrentBlocktime();
-
-  if (!localAuctions.length) return <></>;
 
   return (
     <Card className="local-auctions">
-      <CardHeader title="Local Auctions" />
+      <CardHeader title="Local Auctions">
+        <UploadButton />
+      </CardHeader>
       <div className="local-auctions__content">
         <table>
           <thead>
@@ -52,7 +44,7 @@ function LocalAuctions(): ReactElement {
               <td>Domain Name</td>
               <td>Status</td>
               <td>Price (HNS)</td>
-              <td>Price Decrement</td>
+              <td>Decrement</td>
             </tr>
           </thead>
           <tbody>
@@ -86,7 +78,8 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
   const auction = new Auction(auctionOption);
 
   const status = auction.getStatus(currentTime);
-  const price = auction.getPrice(currentTime);
+  const statusText = auction.getStatusText(currentTime);
+  const price = auction.getCurrentPrice(currentTime);
 
   return (
     <tr
@@ -94,14 +87,20 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
       onClick={() => history.push(`/a/${auction.tld}`)}
     >
       <td>{auction.proposals[0]?.name}</td>
-      <td>{status}</td>
+      <td className={classNames({
+        'local-auctions__status--listed': status === 'LISTED',
+        'local-auctions__status--started': status === 'STARTED',
+        'local-auctions__status--ended': status === 'ENDED',
+      })}>
+        {statusText}
+      </td>
       <td>{formatNumber(fromDollaryDoos(price))}</td>
       <td>{formatNumber(fromDollaryDoos(auction.priceDecrement)) + ` / ${auction.decrementUnit}`}</td>
     </tr>
   );
 }
 
-function NoListing() {
+function UploadButton() {
   const dispatch = useDispatch();
 
   const onFileUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {

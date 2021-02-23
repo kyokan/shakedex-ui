@@ -31,20 +31,24 @@ export default function DomainDetailCard(props: Props) {
       <div className="domain-detail__content">
         <Row label="Owner">
           {address ? ellipsify(address, 12, 12) : 'N/A'}
-          <Tooltipable text="Copy Address">
-            <Icon
-              className="copy-btn"
-              material="content_copy"
-              size={1.5}
-              onClick={() => copy(address)}
-            />
-          </Tooltipable>
+          {
+            address && (
+              <Tooltipable text="Copy Address">
+                <Icon
+                  className="copy-btn"
+                  material="content_copy"
+                  size={1.5}
+                  onClick={() => copy(address)}
+                />
+              </Tooltipable>
+            )
+          }
         </Row>
         <Row label="Value">
-          {`${valueText} HNS`}
+          {value < 0 ? 'N/A' : `${valueText} HNS`}
         </Row>
         <Row label="Highest">
-          {`${highestText} HNS`}
+          {highest < 0 ? 'N/A' : `${highestText} HNS`}
         </Row>
       </div>
     </Card>

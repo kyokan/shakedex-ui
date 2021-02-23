@@ -15,8 +15,8 @@ type AppAction = {
 }
 
 const initialState: AppState = {
-  apiHost: 'http://localhost:12037',
-  apiKey: 'f4b5e7547ce8b3eacfec37fd08e62643b3a24181',
+  apiHost: 'http://5pi.io/hsd',
+  apiKey: '028b0965978137223fb9d132de96993c',
 };
 
 export default function appReducer(state: AppState = initialState, action: AppAction): AppState {

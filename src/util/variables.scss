@@ -3,7 +3,10 @@ $header-gray: #2C2C2C;
 $white: #FFFFFF;
 $black: #000000;
 
+$inactive-text-gray: rgba($white, .2);
 $error-red: #ff0000;
+$success-green: #00ff0a;
+$warning-yellow: #ffeb3b;
 $btn-blue: #00B2FF;
 
 %flex {

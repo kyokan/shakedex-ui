@@ -59,10 +59,10 @@
       @extend %ellipsis;
 
       &:nth-of-type(1) {
-        flex: 1 1 30%;
+        flex: 1 1 22%;
       }
       &:nth-of-type(2) {
-        flex: 1 1 20%;
+        flex: 1 1 28%;
       }
       &:nth-of-type(3) {
         flex: 1 1 25%;
@@ -70,6 +70,20 @@
       &:nth-of-type(4) {
         flex: 1 1 25%;
       }
+    }
+  }
+
+  &__status {
+    &--listed {
+      color: rgba($warning-yellow, .8);
+    }
+
+    &--started {
+      color: rgba($success-green, .8);
+    }
+
+    &--ended {
+      color: $inactive-text-gray;
     }
   }
 }

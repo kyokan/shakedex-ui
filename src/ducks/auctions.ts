@@ -1,6 +1,7 @@
 import {Dispatch} from "redux";
 import deepEqual from 'deep-equal';
 import {useSelector} from "react-redux";
+import {Auction} from "../util/auction";
 
 enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
@@ -76,11 +77,23 @@ export default function auctionsReducer(state: State = initialState, action: Act
 
 function reduceAddLocalAuction(state: State, action: Action<AuctionState>): State {
   const { local } = state;
-  const newAuction = action.payload;
-  const exists = local.reduce((acc, auction) => acc || deepEqual(auction, newAuction), false);
+  const newAuctionState = action.payload;
+  const newAuction = new Auction(newAuctionState);
+  const exists = local.reduce((acc, auctionState) => {
+    return acc || newAuction.tld === new Auction(auctionState).tld;
+  }, false);
 
   if (!exists) {
-    state.local = [...local, newAuction];
+    const newLocal = [...local, newAuctionState];
+    newLocal.sort((a, b) => {
+      const propA = new Auction(a);
+      const propB = new Auction(b);
+
+      if (propA.startTime > propB.startTime) return 1;
+      if (propA.startTime < propB.startTime) return -1;
+      return 0;
+    });
+    state.local = newLocal;
   }
 
   return state;
@@ -103,6 +116,16 @@ export const useRemoteAuctions = (): AuctionState[] => {
     return state.auctions.remote;
   }, (a, b) => deepEqual(a, b));
 };
+
+export const useAuctionByTLD = (tld: string): AuctionState | null => {
+  return useSelector((state: { auctions: State }) => {
+    const { local, remote } = state.auctions;
+    const remoteAuction = remote.find(auction => new Auction(auction).tld === tld);
+    const localAuction = local.find(auction => new Auction(auction).tld === tld);
+
+    return remoteAuction || localAuction || null;
+  }, (a, b) => deepEqual(a, b));
+}
 
 export const useAuctionsUploading = (): boolean => {
   return useSelector((state: { auctions: State }) => {

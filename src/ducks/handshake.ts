@@ -81,6 +81,7 @@ async function getblockchaininfo(apiHost: string, apiKey: string) {
   const resp = await fetch(apiHost, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
     },
     body: JSON.stringify({
@@ -96,6 +97,7 @@ async function getblock(blockHash: string, apiHost: string, apiKey: string) {
   const resp = await fetch(apiHost, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
     },
     body: JSON.stringify({
