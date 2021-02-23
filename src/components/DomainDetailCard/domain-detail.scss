@@ -4,20 +4,37 @@
   @extend %col-nowrap;
 
   &__content {
-    padding: 1rem 2rem;
+    padding: 1rem;
 
     &__row {
       @extend %col-nowrap;
 
       &__label {
-        @extend %regular-font;
+        @extend %lite-font;
         color: rgba($white, .2);
         text-transform: uppercase;
       }
 
       &__value {
-        @extend %h2-font;
+        @extend %row-nowrap;
+        @extend %h3-font;
+        align-items: center;
         margin-top: .25rem;
+
+        .copy-btn {
+          margin-left: .5rem;
+          color: $white;
+          opacity: .1;
+          transition: opacity 150ms ease-in-out;
+
+          &:hover {
+            opacity: .2;
+          }
+
+          &:active {
+            opacity: .3;
+          }
+        }
       }
     }
 

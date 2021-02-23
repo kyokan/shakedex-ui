@@ -20,6 +20,8 @@ export class Auction {
 
   priceDecrement: number;
 
+  decrementUnit: '1d' | '3h' | '1h' | '';
+
   constructor(options: AuctionState) {
     this.tld = options.proposals[0]?.name;
     this.durationDays = options.params.durationDays;
@@ -28,7 +30,22 @@ export class Auction {
     this.proposals = options.proposals;
     this.startTime = new Date(options.proposals[0]?.lockTime * 1000);
     this.endTime = new Date(options.proposals[options.proposals.length - 1]?.lockTime * 1000);
-    this.priceDecrement = options.proposals[1]?.price - this.startPrice;
+    this.priceDecrement = Math.abs(options.proposals[1]?.price - this.startPrice);
+
+    switch ((options.proposals[1]?.lockTime - options.proposals[0]?.lockTime) / 3600) {
+      case 24:
+        this.decrementUnit = '1d';
+        break;
+      case 3:
+        this.decrementUnit = '3h';
+        break;
+      case 1:
+        this.decrementUnit = '1h';
+        break;
+      default:
+        this.decrementUnit = '';
+        break;
+    }
   }
 
   getStatus(blockTime: Date): AuctionStatus {

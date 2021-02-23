@@ -1,5 +1,6 @@
 import {Dispatch} from "redux";
 import {useSelector} from "react-redux";
+import deepEqual from "deep-equal";
 
 enum ActionTypes {
   SET_DOMAIN = 'domains/setDomain',
@@ -12,6 +13,8 @@ type Domain = {
     hash: string;
   },
   stats: DomainStats;
+  value: number;
+  highest: number;
 }
 
 export type DomainStatus = 'REVEAL' | 'BIDDING' | 'CLOSED' | 'OPENING' | null;
@@ -59,7 +62,13 @@ export const fetchDomain = (tld: string) => async (dispatch: Dispatch, getState:
   const json = await resp.json();
   const { result } = json;
   const { start: available } = result.start;
-  const { owner, stats, state } = result.info || {};
+  const {
+    owner,
+    stats,
+    state,
+    value,
+    highest,
+  } = result.info || {};
   const { hash: ownerHash = '' } = owner || {};
   const {
     renewalPeriodStart,
@@ -72,23 +81,21 @@ export const fetchDomain = (tld: string) => async (dispatch: Dispatch, getState:
     revealPeriodEnd,
   } = stats || {};
 
-  console.log(result);
-
   switch (state) {
     case 'REVEAL':
-      dispatch(setDomain(tld, state, ownerHash, revealPeriodStart, revealPeriodEnd));
+      dispatch(setDomain(tld, state, ownerHash, revealPeriodStart, revealPeriodEnd, value, highest));
       break;
     case "BIDDING":
-      dispatch(setDomain(tld, state, ownerHash, bidPeriodStart, bidPeriodEnd));
+      dispatch(setDomain(tld, state, ownerHash, bidPeriodStart, bidPeriodEnd, value, highest));
       break;
     case "OPENING":
-      dispatch(setDomain(tld, state, ownerHash, openPeriodStart, openPeriodEnd));
+      dispatch(setDomain(tld, state, ownerHash, openPeriodStart, openPeriodEnd, value, highest));
       break;
     case "CLOSED":
-      dispatch(setDomain(tld, state, ownerHash, renewalPeriodStart, renewalPeriodEnd));
+      dispatch(setDomain(tld, state, ownerHash, renewalPeriodStart, renewalPeriodEnd, value, highest));
       break;
     case null:
-      dispatch(setDomain(tld, state, ownerHash, available, -1));
+      dispatch(setDomain(tld, state, ownerHash, available, -1, value, highest));
       break;
   }
 
@@ -100,7 +107,17 @@ export const setDomain = (
   ownerHash: string,
   start: number,
   end: number,
-  ): AppAction<{tld: string; state: DomainStatus; ownerHash: string; start: number; end: number}> => {
+  value: number,
+  highest: number,
+): AppAction<{
+  tld: string;
+  state: DomainStatus;
+  ownerHash: string;
+  start: number;
+  end: number;
+  value: number;
+  highest: number;
+}> => {
   return {
     type: ActionTypes.SET_DOMAIN,
     payload: {
@@ -109,6 +126,8 @@ export const setDomain = (
       ownerHash,
       start,
       end,
+      value,
+      highest,
     },
   };
 };
@@ -124,7 +143,15 @@ export default function domainReducer(state: State = initialState, action: AppAc
 
 function reduceSetDomain(
   state: State,
-  action: AppAction<{tld: string; state: DomainStatus; ownerHash: string; start: number; end: number}>
+  action: AppAction<{
+    tld: string;
+    state: DomainStatus;
+    ownerHash: string;
+    start: number;
+    end: number;
+    value: number;
+    highest: number;
+  }>
 ): State {
   const {
     tld,
@@ -132,14 +159,24 @@ function reduceSetDomain(
     ownerHash,
     start,
     end,
+    value,
+    highest,
   } = action.payload;
 
-  state[tld] = makeDomain(tld, auctionState, ownerHash, start, end);
+  state[tld] = makeDomain(tld, auctionState, ownerHash, start, end, value, highest);
 
   return state;
 }
 
-function makeDomain(tld = '', state: DomainStatus = null, ownerHash: string = '', start: number = -1, end: number = -1): Domain {
+function makeDomain(
+  tld = '',
+  state: DomainStatus = null,
+  ownerHash: string = '',
+  start: number = -1,
+  end: number = -1,
+  value: number = -1,
+  highest: number = -1,
+): Domain {
   const stats: DomainStats = {};
 
   switch (state) {
@@ -165,17 +202,19 @@ function makeDomain(tld = '', state: DomainStatus = null, ownerHash: string = ''
   }
 
   return {
-    tld: tld,
-    state: state,
+    tld,
+    state,
     owner: {
       hash: ownerHash,
     },
-    stats: stats,
+    stats,
+    value,
+    highest,
   };
 }
 
 export const useDomain = (tld: string): Domain | undefined => {
   return useSelector((state: { domains: State }) => {
     return state.domains[tld];
-  }, (a, b) => a?.tld === b?.tld);
+  }, (a, b) => deepEqual(a, b));
 };

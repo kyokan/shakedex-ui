@@ -92,6 +92,12 @@ export const useLocalAuctions = (): AuctionState[] => {
   }, (a, b) => deepEqual(a, b));
 };
 
+export const useLocalAuctionByIndex = (index: number): AuctionState | undefined => {
+  return useSelector((state: { auctions: State }) => {
+    return state.auctions.local[index];
+  }, (a, b) => deepEqual(a, b));
+};
+
 export const useRemoteAuctions = (): AuctionState[] => {
   return useSelector((state: { auctions: State }) => {
     return state.auctions.remote;

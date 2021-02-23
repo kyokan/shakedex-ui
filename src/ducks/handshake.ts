@@ -70,6 +70,13 @@ export const useHandshakeInfo = () => {
   }, (a, b) => deepEqual(a, b));
 };
 
+export const useCurrentBlocktime = () => {
+  return useSelector((state: { handshake: State }): Date => {
+    const {time} = state.handshake;
+    return new Date(time * 1000);
+  }, (a, b) => deepEqual(a, b));
+};
+
 async function getblockchaininfo(apiHost: string, apiKey: string) {
   const resp = await fetch(apiHost, {
     method: 'POST',
