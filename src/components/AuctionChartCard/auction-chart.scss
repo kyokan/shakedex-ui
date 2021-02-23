@@ -4,10 +4,37 @@
   background-color: $black;
   border-color: rgba($btn-blue, .8);
 
-  .recharts-wrapper .recharts-surface {
-    //margin: 2rem 3rem 1rem 1rem;
-    //width: calc(100% - 4rem) !important;
-    //height: calc(100% - 3rem) !important;
+  &__header {
+    @extend %row-nowrap;
+    padding: 1rem 2rem 0;
+
+    &__data-group {
+      @extend %col-nowrap;
+      margin-right: 2rem;
+
+      &__label {
+        @extend %lite-font;
+        text-transform: uppercase;
+        color: rgba($white, .5);
+      }
+
+      &__value {
+        @extend %h3-font;
+        @extend %bold;
+      }
+    }
+
+    &__actions {
+      @extend %row-nowrap;
+      flex: 1 1 auto;
+      justify-content: flex-end;
+
+      button {
+        @extend %bold;
+        padding: .5rem 2rem;
+        font-size: 1.125rem;
+      }
+    }
   }
 
   .xAxis .recharts-cartesian-axis-tick {

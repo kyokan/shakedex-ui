@@ -4,14 +4,10 @@ import Card, {CardHeader} from "../Card";
 import {useAuctionByTLD} from "../../ducks/auctions";
 import {Auction} from "../../util/auction";
 import {
-  CartesianGrid,
-  Legend,
   Line,
   LineChart,
-  Rectangle,
-  ReferenceLine, Text,
+  ReferenceLine,
   Tooltip,
-  TooltipProps,
   XAxis,
   YAxis
 } from "recharts";
@@ -19,6 +15,7 @@ import {fromDollaryDoos} from "../../util/number";
 
 import "./auction-chart.scss";
 import {useCurrentBlocktime} from "../../ducks/handshake";
+import Button from "../Button";
 
 type Props = {
   tld: string;
@@ -53,6 +50,29 @@ export default function AuctionChart(props: Props): ReactElement {
 
   return (
     <Card className="auction-chart">
+      <div className="auction-chart__header">
+        <div className="auction-chart__header__data-group">
+          <div className="auction-chart__header__data-group__label">
+            Current Price
+          </div>
+          <div className="auction-chart__header__data-group__value">
+            {`${fromDollaryDoos(currentPrice)} HNS`}
+          </div>
+        </div>
+        <div className="auction-chart__header__data-group">
+          <div className="auction-chart__header__data-group__label">
+            Current Locktime
+          </div>
+          <div className="auction-chart__header__data-group__value">
+            {moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm')}
+          </div>
+        </div>
+        <div className="auction-chart__header__actions">
+          <Button>
+            Buy Now
+          </Button>
+        </div>
+      </div>
       <LineChart
         width={768}
         height={460.8}
