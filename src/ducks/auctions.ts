@@ -164,10 +164,16 @@ export async function assertAuction(auctionJSON: AuctionState, nodeClient: NodeC
   }));
 
   for (const proof of proofs) {
-    const ok = await proof.verify({ nodeClient });
-    if (!ok) {
+    try {
+      const ok = await proof.verify({ nodeClient });
+      if (!ok) {
+        throw new Error('Swap proofs failed validation.');
+      }
+    } catch (e) {
+      console.error(e);
       throw new Error('Swap proofs failed validation.');
     }
+
   }
 }
 

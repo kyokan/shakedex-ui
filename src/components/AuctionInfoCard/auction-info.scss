@@ -1,0 +1,32 @@
+@import "./src/util/variables";
+
+.auction-info {
+  &__content {
+    @extend %row-nowrap;
+    padding: .5rem 0;
+
+    &__l,
+    &__r {
+      flex: 1 1 auto;
+      width: 0;
+    }
+  }
+
+  &__group {
+    padding: 1rem;
+
+    &__label {
+      @extend %lite-font;
+      color: rgba($white, .2);
+      text-transform: uppercase;
+    }
+
+    &__content {
+      @extend %row-nowrap;
+      @extend %h3-font;
+      font-weight: 300;
+      align-items: center;
+      margin-top: .25rem;
+    }
+  }
+}
