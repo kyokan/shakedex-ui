@@ -65,6 +65,7 @@ export default class NodeClient {
 
   async getNameInfo(tld: string) {
     const headers = this.getHeaders();
+    console.log({ tld })
     const resp = await fetch(this.apiHost, {
       method: 'POST',
       headers: headers,
@@ -73,7 +74,7 @@ export default class NodeClient {
         params: [tld],
       }),
     });
-
+    console.log(resp);
     return await resp.json();
   }
 

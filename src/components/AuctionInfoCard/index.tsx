@@ -12,7 +12,13 @@ type Props = {
 
 export default function AuctionInfoCard(props: Props): ReactElement {
   const auctionJSON = useAuctionByTLD(props.tld);
+
+  if (!auctionJSON) {
+    return <></>;
+  }
+
   const auction = new Auction(auctionJSON);
+
   return (
     <Card className="auction-info">
       <CardHeader title="Auction Info" />

@@ -48,7 +48,7 @@ export default function DomainDetailCard(props: Props) {
           {value < 0 ? 'N/A' : `${valueText} HNS`}
         </Row>
         <Row label="Highest">
-          {highest < 0 ? 'N/A' : `${highestText} HNS`}
+          {value < 0 ? 'N/A' : `${highestText} HNS`}
         </Row>
       </div>
     </Card>

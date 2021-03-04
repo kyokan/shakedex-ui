@@ -11,15 +11,22 @@ import "./auction.scss";
 import Comparables from "../../components/Comparables";
 import AuctionChart from "../../components/AuctionChartCard";
 import AuctionInfoCard from "../../components/AuctionInfoCard";
+import {useAPI} from "../../ducks/app";
 
 export default function TLDAuctionView() {
   const { params } = useRouteMatch<{tld: string}>();
   const dispatch = useDispatch();
+  const {apiHost, apiKey} = useAPI();
   const tld = params?.tld;
 
   useEffect(() => {
     dispatch(fetchDomain(tld));
-  }, [tld]);
+  }, [
+    tld,
+    dispatch,
+    apiHost,
+    apiKey,
+  ]);
 
   return (
     <div className="auction">
