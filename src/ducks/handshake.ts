@@ -1,6 +1,7 @@
 import {Dispatch} from "redux";
 import {useSelector} from "react-redux";
 import deepEqual from "deep-equal";
+import NodeClient from "../util/nodeclient";
 
 enum ActionType {
   SET_INFO = 'handshake/setInfo',
@@ -38,10 +39,9 @@ export const setInfo = (hash: string, height: number, time: number): Action<{has
 
 export const fetchHandshake = () => async (dispatch: Dispatch, getState: () => { app: { apiHost: string; apiKey: string} }) => {
   const { app: { apiHost, apiKey } } = getState();
-  if (!apiHost) throw new Error('missing RPC_URL environment variable');
-
-  const blockchanInfo = await getblockchaininfo(apiHost, apiKey);
-  const block = await getblock(blockchanInfo?.result?.bestblockhash, apiHost, apiKey);
+  const nodeClient = new NodeClient({ apiHost, apiKey });
+  const blockchanInfo = await nodeClient.getBlockchainInfo();
+  const block = await nodeClient.getBlock(blockchanInfo!.result!.bestblockhash);
   const {
     hash,
     height,
@@ -76,35 +76,3 @@ export const useCurrentBlocktime = () => {
     return new Date(time * 1000);
   }, (a, b) => deepEqual(a, b));
 };
-
-async function getblockchaininfo(apiHost: string, apiKey: string) {
-  const resp = await fetch(apiHost, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
-    },
-    body: JSON.stringify({
-      method: 'getblockchaininfo',
-      params: [],
-    }),
-  });
-
-  return await resp.json();
-}
-
-async function getblock(blockHash: string, apiHost: string, apiKey: string) {
-  const resp = await fetch(apiHost, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
-    },
-    body: JSON.stringify({
-      method: 'getblock',
-      params: [blockHash],
-    }),
-  });
-
-  return await resp.json();
-}

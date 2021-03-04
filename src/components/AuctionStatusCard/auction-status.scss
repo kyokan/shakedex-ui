@@ -8,8 +8,9 @@
     @extend %col-nowrap;
     align-items: center;
     justify-content: center;
-    flex: 1 1 auto;
+    flex: 1 0 auto;
     padding: 2rem;
+    width: 0;
   }
 
   &__separator {

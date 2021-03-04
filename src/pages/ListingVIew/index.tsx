@@ -86,7 +86,7 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
       key={auction.tld + auction.durationDays + auction.startPrice + auction.startTime}
       onClick={() => history.push(`/a/${auction.tld}`)}
     >
-      <td>{auction.proposals[0]?.name}</td>
+      <td>{auction.tld}</td>
       <td className={classNames({
         'local-auctions__status--listed': status === 'LISTED',
         'local-auctions__status--started': status === 'STARTED',

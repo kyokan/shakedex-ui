@@ -37,6 +37,10 @@
     }
   }
 
+  .recharts-surface {
+    cursor: pointer;
+  }
+
   .xAxis .recharts-cartesian-axis-tick {
     &:nth-of-type(1) {
       text.recharts-cartesian-axis-tick-value {

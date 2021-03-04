@@ -1,7 +1,10 @@
 import {Dispatch} from "redux";
 import deepEqual from 'deep-equal';
 import {useSelector} from "react-redux";
+const jsonSchemaValidate = require('jsonschema').validate;
+const { SwapProof } = require('shakedex/src/swapProof');
 import {Auction} from "../util/auction";
+import NodeClient from "../util/nodeclient";
 
 export enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
@@ -23,22 +26,17 @@ export type State = {
 
 export type ProposalState = {
   lockTime: number;
-  lockingOutputIdx: number;
-  lockingTxHash: string;
-  name: string;
-  paymentAddr: string;
   price: number;
-  publicKey: string;
   signature: string;
 }
 
 export type AuctionState = {
-  params: {
-    durationDays: number;
-    endPrice: number;
-    startPrice: number;
-  },
-  proposals: ProposalState[];
+  lockingOutputIdx: number;
+  lockingTxHash: string;
+  name: string;
+  paymentAddr: string;
+  publicKey: string;
+  data: ProposalState[];
 }
 
 const initialState = {
@@ -54,14 +52,18 @@ export const addLocalAuction = (auction: AuctionState): Action<AuctionState> => 
   };
 };
 
-export const uploadAuctions = (filelist: FileList | null) => async (dispatch: Dispatch) => {
+export const uploadAuctions = (filelist: FileList | null) => async (
+  dispatch: Dispatch,
+  getState: () => { app: { apiHost: string; apiKey: string} },
+) => {
   if (!filelist) return;
-
+  const { app: { apiHost, apiKey } } = getState();
+  const nodeClient = new NodeClient({ apiHost, apiKey });
   const files = Array.from(filelist);
 
   for (const file of files) {
     const json = await readJSON(file);
-    assertAuction(json);
+    await assertAuction(json, nodeClient);
     dispatch(addLocalAuction(json as AuctionState));
   }
 };
@@ -133,7 +135,7 @@ export const useAuctionsUploading = (): boolean => {
   }, (a, b) => deepEqual(a, b));
 };
 
-async function readJSON(file: File) {
+async function readJSON(file: File): Promise<AuctionState> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function fileReadCompleted() {
@@ -143,39 +145,94 @@ async function readJSON(file: File) {
   });
 }
 
-export function assertAuction(json: any) {
-  if (!json?.params || !json?.proposals) {
-    throw new Error('invalid json');
+export async function assertAuction(auctionJSON: AuctionState, nodeClient: NodeClient) {
+  const res = jsonSchemaValidate(auctionJSON, auctionSchema);
+
+  if (!res.valid) {
+    throw new Error('Invalid auction schema.');
   }
 
-  const {
-    durationDays,
-    endPrice,
-    startPrice,
-  } = json.params;
+  const proofs = auctionJSON.data.map(a => new SwapProof({
+    name: auctionJSON.name,
+    lockingTxHash: auctionJSON.lockingTxHash,
+    lockingOutputIdx: auctionJSON.lockingOutputIdx,
+    publicKey: auctionJSON.publicKey,
+    paymentAddr: auctionJSON.paymentAddr,
+    price: a.price,
+    lockTime: a.lockTime,
+    signature: a.signature,
+  }));
 
-  if (typeof durationDays !== 'number') throw new Error('invalid json');
-  if (typeof endPrice !== 'number') throw new Error('invalid json');
-  if (typeof startPrice !== 'number') throw new Error('invalid json');
-
-  for (const proposal of json.proposals) {
-    const {
-      lockTime,
-      lockingOutputIdx,
-      lockingTxHash,
-      name,
-      paymentAddr,
-      price,
-      publicKey,
-      signature,
-    } = proposal || {};
-    if (typeof lockTime !== 'number') throw new Error('invalid json');
-    if (typeof lockingOutputIdx !== 'number') throw new Error('invalid json');
-    if (typeof lockingTxHash !== 'string') throw new Error('invalid json');
-    if (typeof name !== 'string') throw new Error('invalid json');
-    if (typeof paymentAddr !== 'string') throw new Error('invalid json');
-    if (typeof price !== 'number') throw new Error('invalid json');
-    if (typeof publicKey !== 'string') throw new Error('invalid json');
-    if (typeof signature !== 'string') throw new Error('invalid json');
+  for (const proof of proofs) {
+    const ok = await proof.verify({ nodeClient });
+    if (!ok) {
+      throw new Error('Swap proofs failed validation.');
+    }
   }
 }
+
+
+const hexRegex = (len: number | null) => {
+  return new RegExp(`^[a-f0-9]${len ? `{${len}}` : '+'}$`);
+};
+
+const addressRegex = /^(hs|rs|ts|ss)1[a-zA-HJ-NP-Z0-9]{25,39}$/i;
+
+const auctionSchema = {
+  type: 'object',
+  required: [
+    'name',
+    'lockingTxHash',
+    'lockingOutputIdx',
+    'publicKey',
+    'paymentAddr',
+    'data',
+  ],
+  properties: {
+    name: {
+      type: 'string',
+    },
+    lockingTxHash: {
+      type: 'string',
+      pattern: hexRegex(64),
+    },
+    lockingOutputIdx: {
+      type: 'integer',
+      minimum: 0,
+    },
+    publicKey: {
+      type: 'string',
+      pattern: hexRegex(66),
+    },
+    paymentAddr: {
+      type: 'string',
+      pattern: addressRegex,
+    },
+    data: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'object',
+        required: [
+          'price',
+          'lockTime',
+          'signature',
+        ],
+        properties: {
+          price: {
+            type: 'integer',
+            minimum: 0,
+          },
+          lockTime: {
+            type: 'integer',
+            minimum: 1610000000,
+          },
+          signature: {
+            type: 'string',
+            pattern: hexRegex(130),
+          },
+        },
+      },
+    },
+  },
+};

@@ -44,6 +44,7 @@
     "deep-equal": "^2.0.5",
     "hs-client": "0.0.9",
     "hsd": "https://github.com/handshake-org/hsd/tarball/a94ce87",
+    "jsonschema": "^1.4.0",
     "markdown-draft-js": "^2.1.1",
     "moment": "^2.24.0",
     "path": "^0.12.7",
@@ -54,6 +55,7 @@
     "recharts": "^2.0.7",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "shakedex": "0.0.6"
   }
 }

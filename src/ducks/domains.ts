@@ -46,14 +46,22 @@ const initialState: State = {};
 
 export const fetchDomain = (tld: string) => async (dispatch: Dispatch, getState: () => { app: { apiHost: string; apiKey: string} }) => {
   const { app: { apiHost, apiKey } } = getState();
+
   if (!apiHost) throw new Error('missing RPC_URL environment variable');
+
+  const {hostname} = new URL(apiHost);
+  const isLocalhost = ['127.0.0.1', 'localhost'].includes(hostname);
+  const headers: any = {
+    'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
+  };
+
+  if (isLocalhost) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const resp = await fetch(apiHost, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': apiKey && 'Basic ' + Buffer.from(`x:${apiKey}`).toString('base64'),
-    },
+    headers: headers,
     body: JSON.stringify({
       method: 'getnameinfo',
       params: [tld],

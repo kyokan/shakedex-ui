@@ -1,6 +1,6 @@
 import React, {ReactElement, useEffect, useState} from "react";
 import moment from "moment";
-import Card, {CardHeader} from "../Card";
+import Card from "../Card";
 import {useAuctionByTLD} from "../../ducks/auctions";
 import {Auction} from "../../util/auction";
 import {
@@ -29,7 +29,7 @@ export default function AuctionChart(props: Props): ReactElement {
   const [hoverPrice, setHoverPrice] = useState(-1);
   const [hoverLocktime, setHoverLocktime] = useState('');
 
-  const auction = new Auction(auctionState || null);
+  const auction = new Auction(auctionState);
   const data = auction.getChartData();
   const startPriceTick = Number(fromDollaryDoos(auction.startPrice));
   const endPriceTick = Number(fromDollaryDoos(auction.endPrice));
@@ -64,7 +64,7 @@ export default function AuctionChart(props: Props): ReactElement {
             Current Locktime
           </div>
           <div className="auction-chart__header__data-group__value">
-            {moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm')}
+            { currentLockTime > -1 ? moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm') : '-'}
           </div>
         </div>
         <div className="auction-chart__header__actions">

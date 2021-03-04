@@ -24,14 +24,14 @@ export class Auction {
   decrementUnit: '1d' | '3h' | '1h' | '';
 
   constructor(options: AuctionState | undefined | null) {
-    this.tld = options?.proposals[0]?.name || '';
-    this.durationDays = options?.params.durationDays || 0;
-    this.endPrice = options?.params.endPrice || -1;
-    this.startPrice = options?.params.startPrice || -1;
-    this.proposals = options?.proposals || [];
+    this.tld = options?.name || '';
+    this.startPrice = options?.data[0].price || -1;
+    this.endPrice = options?.data[options?.data.length - 1].price || -1;
+    this.proposals = options?.data || [];
     this.startTime = new Date(this.proposals[0]?.lockTime * 1000);
     this.endTime = new Date(this.proposals[this.proposals.length - 1]?.lockTime * 1000);
     this.priceDecrement = Math.abs(this.proposals[1]?.price - this.startPrice);
+    this.durationDays = moment(this.endTime).diff(moment(this.startTime), 'd') + 1;
 
     switch ((this.proposals[1]?.lockTime - this.proposals[0]?.lockTime) / 3600) {
       case 24:
@@ -56,7 +56,7 @@ export class Auction {
 
     if (currentTime.isBefore(startTime)) {
       return 'LISTED';
-    } else if (currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+    } else if (currentTime.isSameOrAfter(startTime) && currentTime.isSameOrBefore(endTime)) {
       return 'STARTED';
     } else {
       return 'ENDED';
@@ -113,7 +113,7 @@ export class Auction {
     return this.proposals.map(proposal => ({
       price: Number(fromDollaryDoos(proposal.price)),
       locktime: moment(proposal.lockTime * 1000).format('YYYY-MM-DD HH:mm'),
-      name: proposal.name,
+      name: name,
     }));
   }
 }

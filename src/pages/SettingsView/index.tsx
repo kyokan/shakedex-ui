@@ -1,13 +1,15 @@
-import React, {ReactNode, useCallback, useState} from "react";
+import React, {ReactNode, useCallback, useEffect, useState} from "react";
 import AppContent from "../../components/AppContent";
 import Card, {CardHeader} from "../../components/Card";
 
 import "./settings.scss";
 import Input from "../../components/Input";
 import Button, {ButtonType} from "../../components/Button";
-import {useAPI} from "../../ducks/app";
+import {updateAPI, useAPI} from "../../ducks/app";
+import {useDispatch} from "react-redux";
 
 export function SettingsView() {
+  const dispatch = useDispatch();
   const { apiHost, apiKey } = useAPI();
   const [adjApiHost, setAdjHost] = useState(apiHost);
   const [adjApiKey, setAdjKey] = useState(apiKey);
@@ -25,6 +27,20 @@ export function SettingsView() {
     setAdjHost(apiHost);
     setAdjKey(apiKey);
   }, [hasChanged, apiKey, apiHost]);
+
+  const saveAPI = useCallback(() => {
+    if (!hasChanged) return;
+    dispatch(updateAPI(adjApiHost, adjApiKey));
+  }, [hasChanged, adjApiHost, adjApiKey, dispatch]);
+
+  useEffect(() => {
+    if (!hasChanged) return;
+    setAdjHost(apiHost);
+    setAdjKey(apiKey);
+  }, [
+    apiHost,
+    apiKey,
+  ]);
 
   return (
     <AppContent className="settings">
@@ -65,6 +81,7 @@ export function SettingsView() {
           </Button>
           <Button
             disabled={!hasChanged}
+            onClick={saveAPI}
           >
             Save
           </Button>
