@@ -3,12 +3,18 @@
 .button {
   @extend %regular-font;
   @extend %bold;
+  @extend %row-nowrap;
+  align-items: center;
   width: fit-content;
   cursor: pointer;
   padding: .5rem 1rem;
   border-radius: .25rem;
   border: none;
   user-select: none;
+
+  .icon {
+    margin-right: .5rem;
+  }
 }
 
 .button--primary {

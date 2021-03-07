@@ -16,6 +16,8 @@ import {fromDollaryDoos} from "../../util/number";
 import "./auction-chart.scss";
 import {useCurrentBlocktime} from "../../ducks/handshake";
 import Button from "../Button";
+import Icon from "../Icon";
+import BobLogo from "../../../static/assets/icons/bob-white.svg";
 
 type Props = {
   tld: string;
@@ -68,8 +70,9 @@ export default function AuctionChart(props: Props): ReactElement {
           </div>
         </div>
         <div className="auction-chart__header__actions">
-          <Button>
-            Buy Now
+          <Button onClick={() => window.open(`bob://fulfillauction?name=${props.tld}&presign=${JSON.stringify(auctionState)}`)}>
+            <Icon url={BobLogo} size={1.25} />
+            <span>Fulfill Auction</span>
           </Button>
         </div>
       </div>
