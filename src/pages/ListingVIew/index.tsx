@@ -5,11 +5,12 @@ import AppContent from "../../components/AppContent";
 import SystemMessage, {SystemMessageType} from "../../components/SystemMessage";
 import Button, {ButtonType} from "../../components/Button";
 import {
+  fetchMoreRemoteAuctions,
   fetchRemoteAuctions,
   removeLocalAuction,
   uploadAuctions,
   useLocalAuctionByIndex,
-  useLocalAuctions, useRemoteAuctions
+  useLocalAuctions, useRemoteAuctionByIndex, useRemoteAuctions
 } from "../../ducks/auctions";
 import Card, {CardHeader} from "../../components/Card";
 
@@ -50,6 +51,16 @@ export default function ListingView() {
 
 function RemoteAuctions(): ReactElement {
   const remoteAuctions = useRemoteAuctions();
+  const dispatch = useDispatch();
+  const [el, setElement] = useState<HTMLTableSectionElement | null>(null);
+
+  const onScroll = useCallback(() => {
+    if (!el) return;
+    const {offsetHeight, scrollHeight, scrollTop} = el;
+    if (offsetHeight + scrollTop >= scrollHeight) {
+      dispatch(fetchMoreRemoteAuctions());
+    }
+  }, [el]);
 
   return (
     <Card className="remote-auctions">
@@ -65,13 +76,12 @@ function RemoteAuctions(): ReactElement {
             <td>Decrement</td>
           </tr>
           </thead>
-          <tbody>
+          <tbody ref={(element) => setElement(element)} onScroll={onScroll}>
           {
             remoteAuctions.map((auctionOption, i) => {
               const auction = new Auction(auctionOption);
-
               return (
-                <LocalAuctionRow
+                <RemoteAuctionRow
                   key={`${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
                   auctionIndex={i}
                 />
@@ -122,7 +132,7 @@ function LocalAuctions(): ReactElement {
 
                 return (
                   <LocalAuctionRow
-                    key={`${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
+                    key={`local-${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
                     auctionIndex={i}
                   />
                 );
@@ -141,6 +151,37 @@ function LocalAuctions(): ReactElement {
     </Card>
 
   )
+}
+
+function RemoteAuctionRow(props: { auctionIndex: number }) {
+  const auctionOption = useRemoteAuctionByIndex(props.auctionIndex);
+  const currentTime = useCurrentBlocktime();
+  const history = useHistory();
+
+  if (!auctionOption) return <></>;
+
+  const auction = new Auction(auctionOption);
+  const status = auction.getStatus(currentTime);
+  const statusText = auction.getStatusText(currentTime);
+  const price = auction.getCurrentPrice(currentTime);
+
+  return (
+    <tr
+      key={'remote' + auction.tld + auction.durationDays + auction.startPrice + auction.startTime}
+      onClick={() => history.push(`/a/${auction.tld}`)}
+    >
+      <td>{auction.tld}</td>
+      <td className={classNames({
+        'local-auctions__status--listed': status === 'LISTED',
+        'local-auctions__status--started': status === 'STARTED',
+        'local-auctions__status--ended': status === 'ENDED',
+      })}>
+        {statusText}
+      </td>
+      <td>{formatNumber(fromDollaryDoos(price))}</td>
+      <td>{formatNumber(fromDollaryDoos(auction.priceDecrement)) + ` / ${auction.decrementUnit}`}</td>
+    </tr>
+  );
 }
 
 function LocalAuctionRow(props: { auctionIndex: number }) {

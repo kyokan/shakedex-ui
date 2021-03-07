@@ -8,6 +8,7 @@ import NodeClient from "../util/nodeclient";
 
 export enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
+  UPDATE_REMOTE_PAGE = 'auctions/updateRemotePage',
   UPDATE_REMOTE_TOTAL = 'auctions/updateRemoteTotal',
   ADD_LOCAL_AUCTION = 'auctions/addLocalAuction',
   ADD_REMOTE_AUCTIONS = 'auctions/addRemoteAuctions',
@@ -27,7 +28,6 @@ export type State = {
   remote: AuctionState[];
   remotePage: number;
   remoteTotal: number;
-  remoteStatus: true,
 }
 
 export type ProposalState = {
@@ -96,6 +96,38 @@ export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: ()
   }))));
 };
 
+export const fetchMoreRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
+  const { auctions: {remotePage}} = getState();
+  const resp = await fetch(`https://shakedex.com/api/v1/auctions?page=${remotePage + 1}&per_page=${20}`);
+  const json: {
+    auctions: AuctionResponseJSON[],
+    total: number,
+  } = await resp.json();
+
+  dispatch({
+    type: ActionTypes.UPDATE_REMOTE_TOTAL,
+    payload: json.total,
+  });
+
+  dispatch({
+    type: ActionTypes.UPDATE_REMOTE_PAGE,
+    payload: remotePage + 1,
+  });
+
+  dispatch(addRemoteAuctions(json.auctions.map(auction => ({
+    name: auction.name,
+    lockingTxHash: auction.lockingTxHash,
+    lockingOutputIdx: auction.lockingOutputIdx,
+    publicKey: auction.publicKey,
+    paymentAddr: auction.paymentAddr,
+    data: auction.bids.map(bid => ({
+      price: bid.price,
+      signature: bid.signature,
+      lockTime: bid.lockTime,
+    })),
+  }))));
+};
+
 export const addRemoteAuctions = (auctions: AuctionState[]): Action<AuctionState[]> => {
   return {
     type: ActionTypes.ADD_REMOTE_AUCTIONS,
@@ -145,6 +177,11 @@ export const uploadAuctions = (filelist: FileList | null) => async (
 
 export default function auctionsReducer(state: State = initialState, action: Action<any>): State {
   switch (action.type) {
+    case ActionTypes.UPDATE_REMOTE_PAGE:
+      return {
+        ...state,
+        remotePage: action.payload,
+      };
     case ActionTypes.UPDATE_REMOTE_TOTAL:
       return {
         ...state,
@@ -205,6 +242,12 @@ export const useLocalAuctions = (): AuctionState[] => {
   }, (a, b) => deepEqual(a, b));
 };
 
+export const useRemoteAuctionByIndex = (index: number): AuctionState | undefined => {
+  return useSelector((state: { auctions: State }) => {
+    return state.auctions.remote[index];
+  }, (a, b) => deepEqual(a, b));
+};
+
 export const useLocalAuctionByIndex = (index: number): AuctionState | undefined => {
   return useSelector((state: { auctions: State }) => {
     return state.auctions.local[index];
@@ -222,7 +265,6 @@ export const useAuctionByTLD = (tld: string): AuctionState | null => {
     const { local, remote } = state.auctions;
     const remoteAuction = remote.find(auction => new Auction(auction).tld === tld);
     const localAuction = local.find(auction => new Auction(auction).tld === tld);
-
     return remoteAuction || localAuction || null;
   }, (a, b) => deepEqual(a, b));
 }

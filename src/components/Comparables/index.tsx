@@ -90,7 +90,13 @@ function Table(props: Props) {
           </tr>
         ))
       }
-
+      {
+        !comps.length && (
+          <div className="comparables__empty-row">
+            No data to display
+          </div>
+        )
+      }
       </tbody>
     </table>
   )
