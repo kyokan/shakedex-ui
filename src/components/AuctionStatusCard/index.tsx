@@ -21,7 +21,6 @@ export default function AuctionStatusCard(props: Props) {
   useEffect(() => {
     (async function() {
       const resp: number = await fetchViews(tld);
-      console.log(resp);
       setViews(resp);
     })();
   }, [tld]);

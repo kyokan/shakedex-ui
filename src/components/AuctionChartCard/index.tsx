@@ -70,7 +70,7 @@ export default function AuctionChart(props: Props): ReactElement {
           </div>
         </div>
         <div className="auction-chart__header__actions">
-          <Button onClick={() => window.open(`bob://fulfillauction?name=${props.tld}&presign=${JSON.stringify(auctionState)}`)}>
+          <Button onClick={() => window.open(`bob://fulfillauction?name=${props.tld}&presign=${JSON.stringify(auctionState)}`, '_blank')}>
             <Icon url={BobLogo} size={1.25} />
             <span>Fulfill Auction</span>
           </Button>
