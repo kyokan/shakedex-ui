@@ -26,7 +26,12 @@
   }
 }
 
-.local-auctions {
+.remote-auctions {
+  margin-bottom: 2rem;
+}
+
+.local-auctions,
+.remote-auctions {
   width: 48rem;
 
   &__error-message {
@@ -131,5 +136,10 @@
     button + button {
       margin-left: .5rem;
     }
+  }
+
+  &__empty-row {
+    text-align: center;
+    padding: 1rem;
   }
 }

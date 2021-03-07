@@ -1,10 +1,16 @@
-import React, {ChangeEvent, ReactElement, useCallback, useState} from "react";
+import React, {ChangeEvent, ReactElement, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 
 import AppContent from "../../components/AppContent";
 import SystemMessage, {SystemMessageType} from "../../components/SystemMessage";
 import Button, {ButtonType} from "../../components/Button";
-import {removeLocalAuction, uploadAuctions, useLocalAuctionByIndex, useLocalAuctions} from "../../ducks/auctions";
+import {
+  fetchRemoteAuctions,
+  removeLocalAuction,
+  uploadAuctions,
+  useLocalAuctionByIndex,
+  useLocalAuctions, useRemoteAuctions
+} from "../../ducks/auctions";
 import Card, {CardHeader} from "../../components/Card";
 
 import "./listing-view.scss";
@@ -18,16 +24,71 @@ import Modal, {ModalContent, ModalHeader} from "../ModalRoot";
 
 
 export default function ListingView() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchRemoteAuctions());
+  }, []);
+
   return (
     <AppContent className="listing-view">
-      <SystemMessage type={SystemMessageType.error}>
-        <div>ShakeDex API is currently unavailable 😵</div>
-        <div>You may still manually upload presigns to view and fulfill auction.</div>
-      </SystemMessage>
+      {/*{*/}
+      {/*  !remotes.length && (*/}
+      {/*    <SystemMessage type={SystemMessageType.error}>*/}
+      {/*      <div>ShakeDex API is currently unavailable 😵</div>*/}
+      {/*      <div>You may still manually upload presigns to view and fulfill auction.</div>*/}
+      {/*    </SystemMessage>*/}
+      {/*  )*/}
+      {/*}*/}
       <div className="listing-view__content">
+        <RemoteAuctions />
         <LocalAuctions />
       </div>
     </AppContent>
+  );
+}
+
+function RemoteAuctions(): ReactElement {
+  const remoteAuctions = useRemoteAuctions();
+
+  return (
+    <Card className="remote-auctions">
+      <CardHeader title="Auctions">
+      </CardHeader>
+      <div className="remote-auctions__content">
+        <table>
+          <thead>
+          <tr>
+            <td>Domain Name</td>
+            <td>Status</td>
+            <td>Price (HNS)</td>
+            <td>Decrement</td>
+          </tr>
+          </thead>
+          <tbody>
+          {
+            remoteAuctions.map((auctionOption, i) => {
+              const auction = new Auction(auctionOption);
+
+              return (
+                <LocalAuctionRow
+                  key={`${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
+                  auctionIndex={i}
+                />
+              );
+            })
+          }
+          {
+            !remoteAuctions.length && (
+              <div className="remote-auctions__empty-row">
+                No data to display
+              </div>
+            )
+          }
+          </tbody>
+        </table>
+      </div>
+    </Card>
   )
 }
 
@@ -66,6 +127,13 @@ function LocalAuctions(): ReactElement {
                   />
                 );
               })
+            }
+            {
+              !localAuctions.length && (
+                <div className="local-auctions__empty-row">
+                  No data to display
+                </div>
+              )
             }
           </tbody>
         </table>

@@ -8,7 +8,9 @@ import NodeClient from "../util/nodeclient";
 
 export enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
+  UPDATE_REMOTE_TOTAL = 'auctions/updateRemoteTotal',
   ADD_LOCAL_AUCTION = 'auctions/addLocalAuction',
+  ADD_REMOTE_AUCTIONS = 'auctions/addRemoteAuctions',
   DELETE_LOCAL_AUCTION = 'auctions/deleteLocalAuction',
 }
 
@@ -23,6 +25,9 @@ export type State = {
   uploading: boolean;
   local: AuctionState[];
   remote: AuctionState[];
+  remotePage: number;
+  remoteTotal: number;
+  remoteStatus: true,
 }
 
 export type ProposalState = {
@@ -40,10 +45,62 @@ export type AuctionState = {
   data: ProposalState[];
 }
 
+type AuctionResponseJSON = {
+  id: number;
+  name: string;
+  publicKey: string;
+  paymentAddr: string;
+  lockingTxHash: string;
+  lockingOutputIdx: number;
+  createdAt: number;
+  updatedAt: number;
+  bids: {
+    price: number;
+    signature: string;
+    lockTime: number;
+  }[];
+}
+
 const initialState = {
   uploading: false,
   local: [],
   remote: [],
+  remotePage: 1,
+  remoteTotal: 0,
+};
+
+export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
+  const { auctions: {remotePage}} = getState();
+  const resp = await fetch(`https://shakedex.com/api/v1/auctions?page=${remotePage}&per_page=${20}`);
+  const json: {
+    auctions: AuctionResponseJSON[],
+    total: number,
+  } = await resp.json();
+
+  dispatch({
+    type: ActionTypes.UPDATE_REMOTE_TOTAL,
+    payload: json.total,
+  });
+
+  dispatch(addRemoteAuctions(json.auctions.map(auction => ({
+    name: auction.name,
+    lockingTxHash: auction.lockingTxHash,
+    lockingOutputIdx: auction.lockingOutputIdx,
+    publicKey: auction.publicKey,
+    paymentAddr: auction.paymentAddr,
+    data: auction.bids.map(bid => ({
+      price: bid.price,
+      signature: bid.signature,
+      lockTime: bid.lockTime,
+    })),
+  }))));
+};
+
+export const addRemoteAuctions = (auctions: AuctionState[]): Action<AuctionState[]> => {
+  return {
+    type: ActionTypes.ADD_REMOTE_AUCTIONS,
+    payload: auctions,
+  };
 };
 
 export const addLocalAuction = (auction: AuctionState): Action<AuctionState> => {
@@ -88,6 +145,13 @@ export const uploadAuctions = (filelist: FileList | null) => async (
 
 export default function auctionsReducer(state: State = initialState, action: Action<any>): State {
   switch (action.type) {
+    case ActionTypes.UPDATE_REMOTE_TOTAL:
+      return {
+        ...state,
+        remoteTotal: action.payload,
+      };
+    case ActionTypes.ADD_REMOTE_AUCTIONS:
+      return reduceAddRemoteAuctions(state, action);
     case ActionTypes.ADD_LOCAL_AUCTION:
       return reduceAddLocalAuction(state, action);
     case ActionTypes.DELETE_LOCAL_AUCTION:
@@ -102,6 +166,14 @@ function reduceDeleteLocalAuction(state: State, action: Action<string>): State {
     ...state,
     local: state.local.filter(({ name }) => name !== action.payload),
   };
+}
+
+function reduceAddRemoteAuctions(state: State, action: Action<AuctionState[]>): State {
+  const { remote } = state;
+  return {
+    ...state,
+    remote: [...remote, ...action.payload],
+  }
 }
 
 function reduceAddLocalAuction(state: State, action: Action<AuctionState>): State {
