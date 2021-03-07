@@ -40,7 +40,7 @@ export default function AuctionStatusCard(props: Props) {
 }
 
 async function fetchViews(domain: string): Promise<number> {
-  const resp = await fetch(`http://localhost:3000/sd_views/${domain}`);
+  const resp = await fetch(`https://5pi.io/sd_views/${domain}`);
   const views = (await resp.json()) || 0;
   return views;
 }

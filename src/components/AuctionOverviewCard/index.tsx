@@ -7,6 +7,7 @@ import Icon from "../Icon";
 import Card from "../Card";
 
 import "./auction-overview.scss";
+import {useAuctionByTLD} from "../../ducks/auctions";
 
 type Props = {
   tld: string;
@@ -17,26 +18,39 @@ export default function AuctionOverview(props: Props) {
     tld,
   } = props;
 
+  const auctionJSON = useAuctionByTLD(tld);
+
   const bookmarked = false;
 
   return (
     <Card className="auction-overview">
       <div className="auction-overview__l">
         <Tooltipable text="Bookmark">
-          <Icon
-            className={c("auction-overview__fav-icon", {
-              'auction-overview__fav-icon--bookmarked': bookmarked,
-            })}
-            material={bookmarked ? 'favorite' : 'favorite_border'}
-            size={2.25}
-            onClick={() => null}
-          />
+          {/*<Icon*/}
+          {/*  className={c("auction-overview__fav-icon", {*/}
+          {/*    'auction-overview__fav-icon--bookmarked': bookmarked,*/}
+          {/*  })}*/}
+          {/*  material={bookmarked ? 'favorite' : 'favorite_border'}*/}
+          {/*  size={2.25}*/}
+          {/*  onClick={() => null}*/}
+          {/*/>*/}
         </Tooltipable>
         <div className="auction-overview__name">
           {tld}
         </div>
       </div>
       <div className="auction-overview__r">
+        {
+          auctionJSON && (
+            <Tooltipable text="Download Presign">
+              <Icon
+                material="download"
+                size={2.25}
+                onClick={() => download(`${tld}-presigns.json`, JSON.stringify(auctionJSON))}
+              />
+            </Tooltipable>
+          )
+        }
         <Tooltipable text="Copy URL">
           <Icon
             material="link"
@@ -47,4 +61,14 @@ export default function AuctionOverview(props: Props) {
       </div>
     </Card>
   );
+}
+
+function download(filename: string, text: string) {
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
 }
