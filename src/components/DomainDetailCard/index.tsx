@@ -18,12 +18,12 @@ type Props = {
 export default function DomainDetailCard(props: Props) {
   const { tld } = props;
   const domain = useDomain(tld);
-  const ownerHash = domain?.owner.hash;
+  const ownerHash = domain?.state === 'CLOSED' ? domain?.owner.hash : 'N/A';
   const value = domain?.value || -1;
   const valueText = value < 0 ? 'N/A' : formatNumber(fromDollaryDoos(value));
   const highest = domain?.highest || -1;
   const highestText = value < 0 ? 'N/A' : formatNumber(fromDollaryDoos(highest));
-  const address = ownerHash ? Address.fromHash(Buffer.from(ownerHash, 'hex')).toString() : '';
+  const address = domain?.state === 'CLOSED' ? Address.fromHash(Buffer.from(ownerHash, 'hex')).toString() : '';
 
   return (
     <Card className="domain-detail">

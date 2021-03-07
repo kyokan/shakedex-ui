@@ -1,18 +1,20 @@
-import React, {ChangeEvent, ReactElement, useCallback} from "react";
+import React, {ChangeEvent, ReactElement, useCallback, useState} from "react";
 import {useDispatch} from "react-redux";
 
 import AppContent from "../../components/AppContent";
 import SystemMessage, {SystemMessageType} from "../../components/SystemMessage";
-import Button from "../../components/Button";
-import {uploadAuctions, useLocalAuctionByIndex, useLocalAuctions, useRemoteAuctions} from "../../ducks/auctions";
+import Button, {ButtonType} from "../../components/Button";
+import {removeLocalAuction, uploadAuctions, useLocalAuctionByIndex, useLocalAuctions} from "../../ducks/auctions";
 import Card, {CardHeader} from "../../components/Card";
 
 import "./listing-view.scss";
 import {Auction} from "../../util/auction";
 import {useHistory} from "react-router";
-import {useCurrentBlocktime, useHandshakeInfo} from "../../ducks/handshake";
+import {useCurrentBlocktime} from "../../ducks/handshake";
 import {formatNumber, fromDollaryDoos} from "../../util/number";
 import classNames from "classnames";
+import Icon from "../../components/Icon";
+import Modal, {ModalContent, ModalHeader} from "../ModalRoot";
 
 
 export default function ListingView() {
@@ -31,11 +33,15 @@ export default function ListingView() {
 
 function LocalAuctions(): ReactElement {
   const localAuctions = useLocalAuctions();
+  const [errMessage, setErrorMessage] = useState('');
 
   return (
     <Card className="local-auctions">
       <CardHeader title="Local Auctions">
-        <UploadButton />
+        {errMessage && <div className="local-auctions__error-message">{errMessage}</div>}
+        <UploadButton
+          setErrorMessage={setErrorMessage}
+        />
       </CardHeader>
       <div className="local-auctions__content">
         <table>
@@ -45,6 +51,7 @@ function LocalAuctions(): ReactElement {
               <td>Status</td>
               <td>Price (HNS)</td>
               <td>Decrement</td>
+              <td></td>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +79,16 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
   const auctionOption = useLocalAuctionByIndex(props.auctionIndex);
   const currentTime = useCurrentBlocktime();
   const history = useHistory();
+  const dispatch = useDispatch();
+
+  const [isConfirming, setConfirming] = useState(false);
+  const removeAuction = useCallback(() => {
+    if (!auctionOption?.name) {
+      return;
+    }
+    dispatch(removeLocalAuction(auctionOption?.name));
+    setConfirming(false);
+  }, [dispatch, auctionOption?.name]);
 
   if (!auctionOption) return <></>;
 
@@ -96,16 +113,62 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
       </td>
       <td>{formatNumber(fromDollaryDoos(price))}</td>
       <td>{formatNumber(fromDollaryDoos(auction.priceDecrement)) + ` / ${auction.decrementUnit}`}</td>
+      <td>
+        <Icon
+          className="delete-btn"
+          material="delete"
+          size={1.5}
+          onClick={e => {
+            e.stopPropagation();
+            setConfirming(true);
+          }}
+        />
+      </td>
+      {
+        isConfirming && (
+          <Modal onClose={() => setConfirming(false)}>
+            <ModalHeader>{`Are you sure you want to delete ${auction.tld}?`}</ModalHeader>
+            <ModalContent>
+              <p>You cannot undo this action.</p>
+              <div className="local-auctions__modal-actions">
+                <Button
+                  btnType={ButtonType.secondary}
+                  onClick={() => setConfirming(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={removeAuction}
+                >
+                  Confirm
+                </Button>
+              </div>
+            </ModalContent>
+          </Modal>
+        )
+      }
     </tr>
   );
 }
 
-function UploadButton() {
+function UploadButton(props: { setErrorMessage: (msg: string) => void}) {
   const dispatch = useDispatch();
+  const { setErrorMessage } = props;
+  const [timed, setTimedout] = useState<any>();
+  const local = useLocalAuctions();
 
-  const onFileUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    dispatch(uploadAuctions(e.target.files));
-  }, []);
+  const onFileUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    if (timed) clearTimeout(timed);
+
+    setErrorMessage('');
+    try {
+      await dispatch(uploadAuctions(e.target.files));
+    } catch (e) {
+      setErrorMessage(e.message);
+      const timeout = setTimeout(() => setErrorMessage(''), 15000);
+      setTimedout(timeout);
+    }
+  }, [timed, local]);
 
   return (
     <Button className="upload-auction-btn">

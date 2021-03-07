@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 
 import Card from "../Card";
 
@@ -16,6 +16,15 @@ export default function AuctionStatusCard(props: Props) {
   const {tld} = props;
   const auctionState = useAuctionByTLD(tld);
   const auction = auctionState && new Auction(auctionState);
+  const [views, setViews] = useState<number|string>('-');
+
+  useEffect(() => {
+    (async function() {
+      const resp: number = await fetchViews(tld);
+      console.log(resp);
+      setViews(resp);
+    })();
+  }, [tld]);
 
   return (
     <Card className="auction-status">
@@ -24,10 +33,16 @@ export default function AuctionStatusCard(props: Props) {
       <div className="auction-status__separator" />
       <div className="auction-status__r">
         <div className="auction-status__label">Unique Views</div>
-        <div className="auction-status__value">-</div>
+        <div className="auction-status__value">{views}</div>
       </div>
     </Card>
   );
+}
+
+async function fetchViews(domain: string): Promise<number> {
+  const resp = await fetch(`http://localhost:3000/sd_views/${domain}`);
+  const views = (await resp.json()) || 0;
+  return views;
 }
 
 function renderDomainStatus(props: Props) {

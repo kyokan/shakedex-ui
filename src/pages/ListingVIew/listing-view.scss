@@ -2,12 +2,13 @@
 
 .listing-view {
   .system-message {
-    margin: 2rem 0;
+    margin-top: 2rem;
   }
 
   &__content {
     @extend %col-nowrap;
     align-items: center;
+    margin: 2rem 0;
   }
 
   .upload-auction-btn {
@@ -28,6 +29,17 @@
 .local-auctions {
   width: 48rem;
 
+  &__error-message {
+    @extend %h5-font;
+    color: $error-red;
+    margin-right: .5rem;
+  }
+
+  &__delete-group {
+    @extend %row-nowrap;
+    align-items: center;
+  }
+
   &__content {
     table {
       flex: 1 1 auto;
@@ -42,6 +54,9 @@
 
         &:hover {
           background-color: lighten($header-gray, 5);
+          td:nth-of-type(1) {
+            text-decoration: underline;
+          }
         }
 
         &:active {
@@ -57,6 +72,8 @@
 
     td {
       @extend %ellipsis;
+      @extend %row-nowrap;
+      align-items: center;
 
       &:nth-of-type(1) {
         flex: 1 1 22%;
@@ -69,6 +86,10 @@
       }
       &:nth-of-type(4) {
         flex: 1 1 25%;
+      }
+
+      &:nth-of-type(5) {
+        flex: 0 0 2rem;
       }
     }
   }
@@ -84,6 +105,31 @@
 
     &--ended {
       color: $inactive-text-gray;
+    }
+  }
+
+  .delete-btn {
+    color: $white;
+    opacity: .1;
+    transition: opacity 150ms ease-in-out;
+
+    &:hover {
+      opacity: .5;
+      color: $error-red;
+    }
+
+    &:active {
+      opacity: .7;
+      color: $error-red;
+    }
+  }
+
+  &__modal-actions {
+    @extend %row-nowrap;
+    justify-content: flex-end;
+
+    button + button {
+      margin-left: .5rem;
     }
   }
 }

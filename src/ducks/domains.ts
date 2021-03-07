@@ -49,7 +49,6 @@ export const fetchDomain = (tld: string) => async (dispatch: Dispatch, getState:
   const { app: { apiHost, apiKey } } = getState();
   const nodeClient = new NodeClient({ apiHost, apiKey });
   const json = await nodeClient.getNameInfo(tld);
-  console.log(json);
   const { result } = json;
   const { start: available } = result.start;
   const {

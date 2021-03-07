@@ -9,6 +9,7 @@ import NodeClient from "../util/nodeclient";
 export enum ActionTypes {
   UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
   ADD_LOCAL_AUCTION = 'auctions/addLocalAuction',
+  DELETE_LOCAL_AUCTION = 'auctions/deleteLocalAuction',
 }
 
 type Action<payload> = {
@@ -52,18 +53,35 @@ export const addLocalAuction = (auction: AuctionState): Action<AuctionState> => 
   };
 };
 
+export const removeLocalAuction = (tld: string): Action<string> => {
+  return {
+    type: ActionTypes.DELETE_LOCAL_AUCTION,
+    payload: tld,
+  };
+};
+
 export const uploadAuctions = (filelist: FileList | null) => async (
   dispatch: Dispatch,
-  getState: () => { app: { apiHost: string; apiKey: string} },
+  getState: () => {
+    app: { apiHost: string; apiKey: string},
+    auctions: State,
+  },
 ) => {
   if (!filelist) return;
-  const { app: { apiHost, apiKey } } = getState();
+  const { app: { apiHost, apiKey }, auctions: { local } } = getState();
   const nodeClient = new NodeClient({ apiHost, apiKey });
   const files = Array.from(filelist);
-
   for (const file of files) {
     const json = await readJSON(file);
     await assertAuction(json, nodeClient);
+    const exists = local.reduce((acc, auctionState) => {
+      return acc || json.name === auctionState.name;
+    }, false);
+
+    if (exists) {
+      throw new Error(`Auction for ${json.name} already exists.`);
+    }
+
     dispatch(addLocalAuction(json as AuctionState));
   }
 };
@@ -72,17 +90,25 @@ export default function auctionsReducer(state: State = initialState, action: Act
   switch (action.type) {
     case ActionTypes.ADD_LOCAL_AUCTION:
       return reduceAddLocalAuction(state, action);
+    case ActionTypes.DELETE_LOCAL_AUCTION:
+      return reduceDeleteLocalAuction(state, action);
     default:
       return state;
   }
 }
 
+function reduceDeleteLocalAuction(state: State, action: Action<string>): State {
+  return {
+    ...state,
+    local: state.local.filter(({ name }) => name !== action.payload),
+  };
+}
+
 function reduceAddLocalAuction(state: State, action: Action<AuctionState>): State {
   const { local } = state;
   const newAuctionState = action.payload;
-  const newAuction = new Auction(newAuctionState);
   const exists = local.reduce((acc, auctionState) => {
-    return acc || newAuction.tld === new Auction(auctionState).tld;
+    return acc || newAuctionState.name === auctionState.name;
   }, false);
 
   if (!exists) {

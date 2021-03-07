@@ -1,9 +1,12 @@
-$background-gray: #151515;
-$header-gray: #2C2C2C;
+$background-gray: #131313;
+$header-gray: #191919;
 $white: #FFFFFF;
 $black: #000000;
+$card-header-gray: #222222;
+$card-bg-gray: #2b2b2b;
 
 $inactive-text-gray: rgba($white, .2);
+$border-gray: rgba($white, .05);
 $error-red: #ff0000;
 $success-green: #00ff0a;
 $warning-yellow: #ffeb3b;
@@ -53,6 +56,11 @@ $btn-blue: #00B2FF;
   line-height: 1.3125;
 }
 
+%h5-font {
+  font-size: .83rem;
+  line-height: 1.3125;
+}
+
 %bold {
   font-weight: 600;
 }
@@ -80,6 +88,10 @@ thead {
 
 tr {
   @extend %row-nowrap;
+
+  &:nth-of-type(odd) {
+    background-color: rgba($black, .1);
+  }
 }
 
 td {

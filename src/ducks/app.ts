@@ -20,7 +20,7 @@ type Action<payload> = {
 
 const initialState: State = {
   apiHost: 'https://5pi.io/hsd',
-  apiKey: '028b0965978137223fb9d132de96993c',
+  apiKey: '',
 };
 
 export const initApp = (): Action<undefined> => ({

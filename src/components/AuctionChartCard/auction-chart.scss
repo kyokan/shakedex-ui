@@ -1,7 +1,7 @@
 @import "./src/util/variables";
 
 .auction-chart {
-  background-color: $black;
+  //background-color: $c;
   border-color: rgba($btn-blue, .8);
 
   &__header {
@@ -15,7 +15,7 @@
       &__label {
         @extend %lite-font;
         text-transform: uppercase;
-        color: rgba($white, .5);
+        color: rgba($white, .9);
       }
 
       &__value {

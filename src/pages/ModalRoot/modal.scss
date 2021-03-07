@@ -1,0 +1,40 @@
+@import "./src/util/variables";
+
+.modal {
+  &__overlay {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background-color: rgba($black, .7);
+    z-index: 100;
+    overflow: auto;
+  }
+
+  &__wrapper {
+    @extend %col-nowrap;
+    width: 36rem;
+    margin: 5rem auto;
+    background-color: $white;
+    border-radius: .175rem;
+    box-shadow: 0 2px 8px 4px rgba($black, .2);
+    z-index: 200;
+  }
+
+  &__header {
+    @extend %h2-font;
+    padding: 1.5rem 2rem;
+    cursor: default;
+  }
+
+  &__content {
+    @extend %col-nowrap;
+    padding: 0 2rem 1.5rem;
+    cursor: default;
+
+    p:first-of-type {
+      margin-top: 0;
+    }
+  }
+}

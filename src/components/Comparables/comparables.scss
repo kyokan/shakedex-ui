@@ -3,6 +3,11 @@
 .comparables {
   @extend %col-nowrap;
 
+  &__empty-row {
+    text-align: center;
+    padding: 1rem;
+  }
+
   &__content {
     @extend %col-nowrap;
     overflow-y: hidden;

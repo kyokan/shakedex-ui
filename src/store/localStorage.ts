@@ -32,6 +32,7 @@ const ls: Middleware = ({ getState }: MiddlewareAPI) => (dispatch: Dispatch) => 
       persistAPI();
       break;
     case AuctionActionTypes.ADD_LOCAL_AUCTION:
+    case AuctionActionTypes.DELETE_LOCAL_AUCTION:
       persistLocalAuctions();
       break;
     case AppActionTypes.INIT_APP:
