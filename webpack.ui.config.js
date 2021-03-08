@@ -9,7 +9,7 @@ const devServerEntries = [
   'webpack/hot/only-dev-server',
 ];
 
-const envPlugin = new webpack.EnvironmentPlugin(['NODE_ENV', 'RPC_URL', 'RPC_KEY']);
+const envPlugin = new webpack.EnvironmentPlugin(['NODE_ENV', 'SHAKEDEX_URL']);
 
 const rules = [
   {

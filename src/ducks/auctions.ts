@@ -108,6 +108,11 @@ export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: ()
   } = await resp.json();
 
   dispatch({
+    type: ActionTypes.UPDATE_REMOTE_PAGE,
+    payload: 1,
+  });
+
+  dispatch({
     type: ActionTypes.UPDATE_REMOTE_TOTAL,
     payload: json.total,
   });
