@@ -12,6 +12,7 @@ import Comparables from "../../components/Comparables";
 import AuctionChart from "../../components/AuctionChartCard";
 import AuctionInfoCard from "../../components/AuctionInfoCard";
 import {useAPI} from "../../ducks/app";
+import {fetchAuctionByTLD} from "../../ducks/auctions";
 
 export default function TLDAuctionView() {
   const { params } = useRouteMatch<{tld: string}>();
@@ -21,6 +22,7 @@ export default function TLDAuctionView() {
 
   useEffect(() => {
     dispatch(fetchDomain(tld));
+    dispatch(fetchAuctionByTLD(tld));
   }, [
     tld,
     dispatch,

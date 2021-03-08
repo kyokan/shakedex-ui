@@ -6,8 +6,8 @@ import SystemMessage, {SystemMessageType} from "../../components/SystemMessage";
 import Button, {ButtonType} from "../../components/Button";
 import {
   fetchMoreRemoteAuctions,
-  fetchRemoteAuctions,
-  removeLocalAuction,
+  fetchRemoteAuctions, readJSON,
+  removeLocalAuction, submitAuction,
   uploadAuctions,
   useLocalAuctionByIndex,
   useLocalAuctions, useRemoteAuctionByIndex, useRemoteAuctions
@@ -53,6 +53,7 @@ function RemoteAuctions(): ReactElement {
   const remoteAuctions = useRemoteAuctions();
   const dispatch = useDispatch();
   const [el, setElement] = useState<HTMLTableSectionElement | null>(null);
+  const [errMessage, setErrorMessage] = useState('');
 
   const onScroll = useCallback(() => {
     if (!el) return;
@@ -65,16 +66,20 @@ function RemoteAuctions(): ReactElement {
   return (
     <Card className="remote-auctions">
       <CardHeader title="Auctions">
+        {errMessage && <div className="local-auctions__error-message">{errMessage}</div>}
+        <SubmitButton
+          setErrorMessage={setErrorMessage}
+        />
       </CardHeader>
       <div className="remote-auctions__content">
         <table>
           <thead>
-          <tr>
-            <td>Domain Name</td>
-            <td>Status</td>
-            <td>Price (HNS)</td>
-            <td>Decrement</td>
-          </tr>
+            <tr>
+              <td>Domain Name</td>
+              <td>Status</td>
+              <td>Price (HNS)</td>
+              <td>Decrement</td>
+            </tr>
           </thead>
           <tbody ref={(element) => setElement(element)} onScroll={onScroll}>
           {
@@ -82,7 +87,7 @@ function RemoteAuctions(): ReactElement {
               const auction = new Auction(auctionOption);
               return (
                 <RemoteAuctionRow
-                  key={`${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
+                  key={`remote-${auction.tld}-${auction.startTime.getTime()}=${auction.priceDecrement}`}
                   auctionIndex={i}
                 />
               );
@@ -90,9 +95,9 @@ function RemoteAuctions(): ReactElement {
           }
           {
             !remoteAuctions.length && (
-              <div className="remote-auctions__empty-row">
+              <tr className="remote-auctions__empty-row">
                 No data to display
-              </div>
+              </tr>
             )
           }
           </tbody>
@@ -132,7 +137,7 @@ function LocalAuctions(): ReactElement {
 
                 return (
                   <LocalAuctionRow
-                    key={`local-${auction.tld}-${auction.startTime}=${auction.priceDecrement}`}
+                    key={`local-${auction.tld}-${auction.startTime.getTime()}=${auction.priceDecrement}`}
                     auctionIndex={i}
                   />
                 );
@@ -140,9 +145,9 @@ function LocalAuctions(): ReactElement {
             }
             {
               !localAuctions.length && (
-                <div className="local-auctions__empty-row">
+                <tr className="local-auctions__empty-row">
                   No data to display
-                </div>
+                </tr>
               )
             }
           </tbody>
@@ -167,7 +172,6 @@ function RemoteAuctionRow(props: { auctionIndex: number }) {
 
   return (
     <tr
-      key={'remote' + auction.tld + auction.durationDays + auction.startPrice + auction.startTime}
       onClick={() => history.push(`/a/${auction.tld}`)}
     >
       <td>{auction.tld}</td>
@@ -260,7 +264,9 @@ function LocalAuctionRow(props: { auctionIndex: number }) {
   );
 }
 
-function UploadButton(props: { setErrorMessage: (msg: string) => void}) {
+function UploadButton(props: {
+  setErrorMessage: (msg: string) => void;
+}) {
   const dispatch = useDispatch();
   const { setErrorMessage } = props;
   const [timed, setTimedout] = useState<any>();
@@ -287,6 +293,42 @@ function UploadButton(props: { setErrorMessage: (msg: string) => void}) {
         accept="application/json"
         onChange={onFileUpload}
         multiple
+      />
+    </Button>
+  )
+}
+
+function SubmitButton(props: {
+  setErrorMessage: (msg: string) => void;
+}) {
+  const dispatch = useDispatch();
+  const { setErrorMessage } = props;
+  const [timed, setTimedout] = useState<any>();
+  const local = useLocalAuctions();
+
+  const onFileUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    if (timed) clearTimeout(timed);
+
+    setErrorMessage('');
+
+    try {
+      const file: File = e.target.files![0];
+      const auctionJSON = await readJSON(file);
+      await dispatch(submitAuction(auctionJSON));
+    } catch (e) {
+      setErrorMessage(e.message);
+      const timeout = setTimeout(() => setErrorMessage(''), 15000);
+      setTimedout(timeout);
+    }
+  }, [timed, local]);
+
+  return (
+    <Button className="upload-auction-btn">
+      Submit Listing
+      <input
+        type="file"
+        accept="application/json"
+        onChange={onFileUpload}
       />
     </Button>
   )

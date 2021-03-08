@@ -10,7 +10,7 @@
   &__header {
     @extend %row-nowrap;
     align-items: center;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid $border-gray;
     background-color: $card-header-gray;
 

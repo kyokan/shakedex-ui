@@ -28,12 +28,18 @@ export class Auction {
     this.startPrice = options?.data[0].price || -1;
     this.endPrice = options?.data[options?.data.length - 1].price || -1;
     this.proposals = options?.data || [];
-    this.startTime = new Date(this.proposals[0]?.lockTime * 1000);
+    this.startTime = String(this.proposals[0]?.lockTime).length === 10
+      ? new Date(this.proposals[0]?.lockTime * 1000)
+      : new Date(this.proposals[0]?.lockTime);
     this.endTime = new Date(this.proposals[this.proposals.length - 1]?.lockTime * 1000);
     this.priceDecrement = Math.abs(this.proposals[1]?.price - this.startPrice);
     this.durationDays = moment(this.endTime).diff(moment(this.startTime), 'd') + 1;
 
-    switch ((this.proposals[1]?.lockTime - this.proposals[0]?.lockTime) / 3600) {
+    const secondTime = String(this.proposals[1]?.lockTime).length === 10
+      ? new Date(this.proposals[1]?.lockTime * 1000)
+      : new Date(this.proposals[1]?.lockTime);
+
+    switch ((secondTime.getTime() - this.startTime.getTime()) / 3600000) {
       case 24:
         this.decrementUnit = '1d';
         break;

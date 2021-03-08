@@ -26,10 +26,6 @@
   }
 }
 
-.remote-auctions {
-  margin-bottom: 2rem;
-}
-
 .local-auctions,
 .remote-auctions {
   width: 48rem;
@@ -139,7 +135,21 @@
   }
 
   &__empty-row {
+    justify-content: center;
     text-align: center;
     padding: 1rem;
+    cursor: default !important;
+  }
+}
+
+
+
+.remote-auctions {
+  margin-bottom: 2rem;
+
+  &__content {
+    table {
+      max-height: 24rem;
+    }
   }
 }

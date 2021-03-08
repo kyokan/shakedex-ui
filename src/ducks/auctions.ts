@@ -5,14 +5,18 @@ const jsonSchemaValidate = require('jsonschema').validate;
 const { SwapProof } = require('shakedex/src/swapProof');
 import {Auction} from "../util/auction";
 import NodeClient from "../util/nodeclient";
+import {SHAKEDEX_URL} from "../util/shakedex";
 
 export enum ActionTypes {
-  UPLOAD_AUCTIONS = 'auctions/uploadAuctions',
+  UPLOAD_AUCTION_START = 'auctions/uploadAuctionStart',
+  UPLOAD_AUCTION_END = 'auctions/uploadAuctionEnd',
   UPDATE_REMOTE_PAGE = 'auctions/updateRemotePage',
   UPDATE_REMOTE_TOTAL = 'auctions/updateRemoteTotal',
   ADD_LOCAL_AUCTION = 'auctions/addLocalAuction',
   ADD_REMOTE_AUCTIONS = 'auctions/addRemoteAuctions',
+  SET_REMOTE_AUCTIONS = 'auctions/setRemoteAuctions',
   DELETE_LOCAL_AUCTION = 'auctions/deleteLocalAuction',
+  ADD_AUCTION_BY_TLD = 'auctions/addAuctionByTLD',
 }
 
 type Action<payload> = {
@@ -24,8 +28,11 @@ type Action<payload> = {
 
 export type State = {
   uploading: boolean;
-  local: AuctionState[];
-  remote: AuctionState[];
+  local: string[];
+  remote: string[];
+  byTLD: {
+    [tld: string]: AuctionState;
+  };
   remotePage: number;
   remoteTotal: number;
 }
@@ -67,11 +74,34 @@ const initialState = {
   remote: [],
   remotePage: 1,
   remoteTotal: 0,
+  byTLD: {},
 };
 
+export const submitAuction = (auctionJSON: AuctionState) => async (dispatch: Dispatch) => {
+  dispatch({ type: ActionTypes.UPLOAD_AUCTION_START});
+
+  try {
+    const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({auction: auctionJSON})
+    });
+    const json = await resp.json();
+
+    if (json.error) throw new Error(json.error.message);
+    dispatch({ type: ActionTypes.UPLOAD_AUCTION_END });
+  } catch (e) {
+    dispatch({ type: ActionTypes.UPLOAD_AUCTION_END });
+    throw e;
+  }
+};
+
+const PER_PAGE = 10;
+
 export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
-  const { auctions: {remotePage}} = getState();
-  const resp = await fetch(`https://shakedex.com/api/v1/auctions?page=${remotePage}&per_page=${20}`);
+  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=1&per_page=${PER_PAGE}`);
   const json: {
     auctions: AuctionResponseJSON[],
     total: number,
@@ -81,6 +111,8 @@ export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: ()
     type: ActionTypes.UPDATE_REMOTE_TOTAL,
     payload: json.total,
   });
+
+  dispatch(setRemoteAuctions([]));
 
   dispatch(addRemoteAuctions(json.auctions.map(auction => ({
     name: auction.name,
@@ -97,8 +129,11 @@ export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: ()
 };
 
 export const fetchMoreRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
-  const { auctions: {remotePage}} = getState();
-  const resp = await fetch(`https://shakedex.com/api/v1/auctions?page=${remotePage + 1}&per_page=${20}`);
+  const { auctions: {remotePage, remote}} = getState();
+
+  if (remote.length < remotePage * PER_PAGE) return;
+
+  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=${remotePage + 1}&per_page=${PER_PAGE}`);
   const json: {
     auctions: AuctionResponseJSON[],
     total: number,
@@ -128,10 +163,45 @@ export const fetchMoreRemoteAuctions = () => async (dispatch: Dispatch, getState
   }))));
 };
 
+export const fetchAuctionByTLD = (tld: string) => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
+  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions/n/${tld}`);
+  const json: {
+    auction: AuctionResponseJSON,
+  } = await resp.json();
+  const {auction} = json;
+
+  dispatch(addAuctionByTLD({
+    name: auction.name,
+    lockingTxHash: auction.lockingTxHash,
+    lockingOutputIdx: auction.lockingOutputIdx,
+    publicKey: auction.publicKey,
+    paymentAddr: auction.paymentAddr,
+    data: auction.bids.map(bid => ({
+      price: bid.price,
+      signature: bid.signature,
+      lockTime: bid.lockTime,
+    })),
+  }));
+};
+
+export const setRemoteAuctions = (auctions: AuctionState[]): Action<AuctionState[]> => {
+  return {
+    type: ActionTypes.SET_REMOTE_AUCTIONS,
+    payload: auctions,
+  };
+};
+
 export const addRemoteAuctions = (auctions: AuctionState[]): Action<AuctionState[]> => {
   return {
     type: ActionTypes.ADD_REMOTE_AUCTIONS,
     payload: auctions,
+  };
+};
+
+export const addAuctionByTLD = (auction: AuctionState): Action<AuctionState> => {
+  return {
+    type: ActionTypes.ADD_AUCTION_BY_TLD,
+    payload: auction,
   };
 };
 
@@ -163,8 +233,8 @@ export const uploadAuctions = (filelist: FileList | null) => async (
   for (const file of files) {
     const json = await readJSON(file);
     await assertAuction(json, nodeClient);
-    const exists = local.reduce((acc, auctionState) => {
-      return acc || json.name === auctionState.name;
+    const exists = local.reduce((acc, name) => {
+      return acc || json.name === name;
     }, false);
 
     if (exists) {
@@ -187,6 +257,29 @@ export default function auctionsReducer(state: State = initialState, action: Act
         ...state,
         remoteTotal: action.payload,
       };
+    case ActionTypes.UPLOAD_AUCTION_START:
+      return {
+        ...state,
+        uploading: true,
+      };
+    case ActionTypes.UPLOAD_AUCTION_END:
+      return {
+        ...state,
+        uploading: false,
+      };
+    case ActionTypes.SET_REMOTE_AUCTIONS:
+      return {
+        ...state,
+        remote: action.payload,
+      };
+    case ActionTypes.ADD_AUCTION_BY_TLD:
+      return {
+        ...state,
+        byTLD: {
+          ...state.byTLD,
+          [action.payload.name]: action.payload,
+        },
+      };
     case ActionTypes.ADD_REMOTE_AUCTIONS:
       return reduceAddRemoteAuctions(state, action);
     case ActionTypes.ADD_LOCAL_AUCTION:
@@ -201,7 +294,7 @@ export default function auctionsReducer(state: State = initialState, action: Act
 function reduceDeleteLocalAuction(state: State, action: Action<string>): State {
   return {
     ...state,
-    local: state.local.filter(({ name }) => name !== action.payload),
+    local: state.local.filter((name) => name !== action.payload),
   };
 }
 
@@ -209,28 +302,28 @@ function reduceAddRemoteAuctions(state: State, action: Action<AuctionState[]>): 
   const { remote } = state;
   return {
     ...state,
-    remote: [...remote, ...action.payload],
-  }
+    remote: [...remote, ...action.payload.map(({ name }) => name)],
+    byTLD: {
+      ...state.byTLD,
+      ...action.payload.reduce((acc: State['byTLD'], auction) => {
+        acc[auction.name] = auction;
+        return acc;
+      }, {}),
+    },
+  };
 }
 
 function reduceAddLocalAuction(state: State, action: Action<AuctionState>): State {
   const { local } = state;
   const newAuctionState = action.payload;
-  const exists = local.reduce((acc, auctionState) => {
-    return acc || newAuctionState.name === auctionState.name;
+  const exists = local.reduce((acc, name) => {
+    return acc || newAuctionState.name === name;
   }, false);
 
   if (!exists) {
-    const newLocal = [...local, newAuctionState];
-    newLocal.sort((a, b) => {
-      const propA = new Auction(a);
-      const propB = new Auction(b);
-
-      if (propA.startTime > propB.startTime) return 1;
-      if (propA.startTime < propB.startTime) return -1;
-      return 0;
-    });
+    const newLocal = [...local, newAuctionState.name];
     state.local = newLocal;
+    state.byTLD[newAuctionState.name] = newAuctionState;
   }
 
   return state;
@@ -238,34 +331,32 @@ function reduceAddLocalAuction(state: State, action: Action<AuctionState>): Stat
 
 export const useLocalAuctions = (): AuctionState[] => {
   return useSelector((state: { auctions: State }) => {
-    return state.auctions.local;
+    return state.auctions.local.map(name => state.auctions.byTLD[name]);
   }, (a, b) => deepEqual(a, b));
 };
 
 export const useRemoteAuctionByIndex = (index: number): AuctionState | undefined => {
   return useSelector((state: { auctions: State }) => {
-    return state.auctions.remote[index];
+    return state.auctions.byTLD[state.auctions.remote[index]];
   }, (a, b) => deepEqual(a, b));
 };
 
 export const useLocalAuctionByIndex = (index: number): AuctionState | undefined => {
   return useSelector((state: { auctions: State }) => {
-    return state.auctions.local[index];
+    return state.auctions.byTLD[state.auctions.local[index]];
   }, (a, b) => deepEqual(a, b));
 };
 
 export const useRemoteAuctions = (): AuctionState[] => {
   return useSelector((state: { auctions: State }) => {
-    return state.auctions.remote;
+    return state.auctions.remote.map(name => state.auctions.byTLD[name]);;
   }, (a, b) => deepEqual(a, b));
 };
 
 export const useAuctionByTLD = (tld: string): AuctionState | null => {
   return useSelector((state: { auctions: State }) => {
-    const { local, remote } = state.auctions;
-    const remoteAuction = remote.find(auction => new Auction(auction).tld === tld);
-    const localAuction = local.find(auction => new Auction(auction).tld === tld);
-    return remoteAuction || localAuction || null;
+    const { byTLD } = state.auctions;
+    return byTLD[tld] || null;
   }, (a, b) => deepEqual(a, b));
 }
 
@@ -275,7 +366,7 @@ export const useAuctionsUploading = (): boolean => {
   }, (a, b) => deepEqual(a, b));
 };
 
-async function readJSON(file: File): Promise<AuctionState> {
+export async function readJSON(file: File): Promise<AuctionState> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function fileReadCompleted() {
