@@ -6,3 +6,9 @@
   color: $white;
   width: 48rem;
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .app-content {
+    width: 100vw;
+  }
+}

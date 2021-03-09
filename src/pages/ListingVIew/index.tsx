@@ -127,7 +127,7 @@ function LocalAuctions(): ReactElement {
               <td>Status</td>
               <td>Price (HNS)</td>
               <td>Decrement</td>
-              <td></td>
+              <td>&#x2800;</td>
             </tr>
           </thead>
           <tbody>
