@@ -142,8 +142,6 @@
   }
 }
 
-
-
 .remote-auctions {
   margin-bottom: 2rem;
 
@@ -153,3 +151,23 @@
     }
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .listing-view {
+    &__content {
+      margin: .25rem 0;
+      width: fit-content;
+    }
+  }
+
+  .remote-auctions {
+    margin-bottom: .25rem;
+  }
+
+  .local-auctions,
+  .remote-auctions {
+    width: 100vw;
+  }
+}
+
+

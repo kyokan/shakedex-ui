@@ -25,6 +25,7 @@ export class Auction {
 
   constructor(options: AuctionState | undefined | null) {
     this.tld = options?.name || '';
+    console.log(options)
     this.startPrice = options?.data[0].price || -1;
     this.endPrice = options?.data[options?.data.length - 1].price || -1;
     this.proposals = options?.data || [];

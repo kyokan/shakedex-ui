@@ -71,6 +71,8 @@ $btn-blue: #00B2FF;
   white-space: nowrap;
 }
 
+$breakpoint-tablet: 768px;
+
 table {
   @extend %col-nowrap;
   width: 100%;

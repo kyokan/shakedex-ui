@@ -28,3 +28,11 @@
     }
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .card {
+    &__header {
+      padding: .5rem 1rem;
+    }
+  }
+}

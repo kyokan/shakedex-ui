@@ -13,3 +13,10 @@
     margin-top: 1rem;
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .auction {
+    //margin-top: .25rem;
+  }
+}
+

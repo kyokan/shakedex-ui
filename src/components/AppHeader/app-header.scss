@@ -42,3 +42,9 @@
     }
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .header {
+    padding: 0 1rem;
+  }
+}

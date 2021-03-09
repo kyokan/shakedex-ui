@@ -2,7 +2,8 @@ import {Dispatch, Middleware, MiddlewareAPI} from "redux";
 import {
   ActionTypes as AuctionActionTypes,
   addLocalAuction,
-  State as AuctionState,
+  State as AuctionReduxState,
+  AuctionState,
 } from "../ducks/auctions";
 import {
   ActionTypes as AppActionTypes,
@@ -23,7 +24,7 @@ const HSD_API_LS_KEY = 'hsd_api';
 const ls: Middleware = ({ getState }: MiddlewareAPI) => (dispatch: Dispatch) => (action: Action) => {
   const result = dispatch(action);
   const state: {
-    auctions: AuctionState;
+    auctions: AuctionReduxState;
     app: AppState;
   } = getState();
 
@@ -61,8 +62,12 @@ const ls: Middleware = ({ getState }: MiddlewareAPI) => (dispatch: Dispatch) => 
       const jsonString = localStorage.getItem(LOCAL_AUCTIONS_LS_KEY);
 
       if (jsonString) {
-        const json: AuctionState['local'] = JSON.parse(jsonString);
-        json.forEach(auctionState => dispatch(addLocalAuction(auctionState)));
+        const json: AuctionState[] = JSON.parse(jsonString);
+        json.forEach(auctionState => {
+          if (auctionState?.name) {
+            dispatch(addLocalAuction(auctionState))
+          }
+        });
       }
     } catch (e) {
       console.error(e);
@@ -71,7 +76,13 @@ const ls: Middleware = ({ getState }: MiddlewareAPI) => (dispatch: Dispatch) => 
 
   function persistLocalAuctions() {
     try {
-      localStorage.setItem(LOCAL_AUCTIONS_LS_KEY, JSON.stringify(state.auctions.local));
+      const {
+        auctions: {
+          local,
+          byTLD,
+        },
+      } = state;
+      localStorage.setItem(LOCAL_AUCTIONS_LS_KEY, JSON.stringify(local.map(name => byTLD[name])));
     } catch (e) {
       console.error(e);
     }

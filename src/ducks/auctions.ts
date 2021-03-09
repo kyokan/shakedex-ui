@@ -3,7 +3,6 @@ import deepEqual from 'deep-equal';
 import {useSelector} from "react-redux";
 const jsonSchemaValidate = require('jsonschema').validate;
 const { SwapProof } = require('shakedex/src/swapProof');
-import {Auction} from "../util/auction";
 import NodeClient from "../util/nodeclient";
 import {SHAKEDEX_URL} from "../util/shakedex";
 

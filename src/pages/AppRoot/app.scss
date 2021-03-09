@@ -36,3 +36,9 @@ html, body {
     overflow-y: auto;
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  html, body {
+    font-size: 15px;
+  }
+}
