@@ -38,6 +38,11 @@ export default function AuctionChart(props: Props): ReactElement {
   const currentPrice = auction.getCurrentPrice(currentBlocktime);
   const currentLockTime = auction.getCurrentTime(currentBlocktime);
 
+  const chartWidth = document.body.clientWidth < 768
+    ? document.body.clientWidth
+    : 768;
+  const chartHeight = chartWidth * (460.8 / 768);
+
   useEffect(() => {
     setHoverLocktime(moment(currentLockTime).format('YYYY-MM-DD HH:mm'));
     setHoverPrice(Number(fromDollaryDoos(currentPrice)));
@@ -70,20 +75,22 @@ export default function AuctionChart(props: Props): ReactElement {
           </div>
         </div>
         <div className="auction-chart__header__actions">
-          <Button onClick={() => window.open(`bob://fulfillauction?name=${props.tld}&presign=${JSON.stringify(auctionState)}`, '_blank')}>
+          <Button
+            onClick={() => window.open(`bob://fulfillauction?name=${props.tld}&presign=${JSON.stringify(auctionState)}`, '_blank')}
+          >
             <Icon url={BobLogo} size={1.25} />
             <span>Fulfill Auction</span>
           </Button>
         </div>
       </div>
       <LineChart
-        width={768}
-        height={460.8}
+        width={chartWidth}
+        height={chartHeight}
         margin={{
           top: 32,
           bottom: 32,
-          left: 96,
-          right: 96,
+          left: chartWidth === 768 ? 96 : 32,
+          right: chartWidth === 768 ? 96 : 32,
         }}
         data={data}
       >
@@ -217,11 +224,15 @@ const renderYTicks = (opts: {
 }) => {
   let anchor = 'end';
 
+  const chartWidth = document.body.clientWidth < 768
+    ? document.body.clientWidth
+    : 768;
+
   if (opts.index === 1) {
     return (
       <foreignObject
         className="y-marker"
-        x={opts.x - 128}
+        x={chartWidth === 768 ? opts.x - 128 : opts.x - 64}
         y={opts.y - 16}
         textAnchor="middle"
       >

@@ -91,7 +91,9 @@ export class Auction {
     const currentTime = moment(blocktime);
 
     for (const proposal of this.proposals) {
-      const proposalTime = moment(proposal.lockTime * 1000);
+      const proposalTime = String(proposal.lockTime).length === 10
+        ? moment(proposal.lockTime * 1000)
+        : moment(proposal.lockTime);
       if (currentTime.isSameOrAfter(proposalTime)) {
         price = proposal.price;
       }
@@ -107,7 +109,9 @@ export class Auction {
     const currentTime = moment(blocktime);
 
     for (const proposal of this.proposals) {
-      const proposalTime = moment(proposal.lockTime * 1000);
+      const proposalTime = String(proposal.lockTime).length === 10
+        ? moment(proposal.lockTime * 1000)
+        : moment(proposal.lockTime);
       if (currentTime.isSameOrAfter(proposalTime)) {
         locktime = proposal.lockTime;
       }
@@ -119,7 +123,9 @@ export class Auction {
   getChartData(): {price: number; locktime: string; name: string}[] {
     return this.proposals.map(proposal => ({
       price: Number(fromDollaryDoos(proposal.price)),
-      locktime: moment(proposal.lockTime * 1000).format('YYYY-MM-DD HH:mm'),
+      locktime: String(proposal.lockTime).length === 10
+          ? moment(proposal.lockTime * 1000).format('YYYY-MM-DD HH:mm')
+          : moment(proposal.lockTime).format('YYYY-MM-DD HH:mm'),
       name: name,
     }));
   }

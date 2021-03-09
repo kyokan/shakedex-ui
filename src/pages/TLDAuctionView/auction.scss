@@ -16,7 +16,15 @@
 
 @media (max-width: $breakpoint-tablet) {
   .auction {
-    //margin-top: .25rem;
+    margin: .25rem 0;
+
+    .auction-status,
+    .domain-detail,
+    .comparables,
+    .auction-chart,
+    .auction-info {
+      margin-top: .25rem;
+    }
   }
 }
 

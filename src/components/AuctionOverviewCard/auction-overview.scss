@@ -53,3 +53,17 @@
     }
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .auction-overview {
+    padding: .5rem .75rem;
+
+    &__name {
+      font-size: 1.5rem;
+    }
+
+    .icon {
+      font-size: 1.5rem !important;
+    }
+  }
+}

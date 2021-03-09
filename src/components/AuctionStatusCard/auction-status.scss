@@ -30,3 +30,16 @@
     color: rgba($white, .9);
   }
 }
+
+@media (max-width: $breakpoint-tablet) {
+  .auction-status {
+    &__l,
+    &__r {
+      padding: 1rem;
+    }
+
+    &__value {
+      font-size: 1.17rem;
+    }
+  }
+}
