@@ -25,7 +25,7 @@ type Props = {
 
 export default function AuctionChart(props: Props): ReactElement {
   const auctionState = useAuctionByTLD(props.tld);
-  const currentBlocktime = useCurrentBlocktime();
+  const currentBlocktime = new Date();
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const [hoverPrice, setHoverPrice] = useState(-1);
@@ -55,7 +55,7 @@ export default function AuctionChart(props: Props): ReactElement {
   }
 
   const adjPrice = hoverPrice || Number(fromDollaryDoos(currentPrice));
-  const adjLocktime = hoverLocktime || moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm');
+  const adjLocktime = hoverLocktime || moment(currentLockTime).format('YYYY-MM-DD HH:mm');
 
   return (
     <Card className="auction-chart">
@@ -73,7 +73,7 @@ export default function AuctionChart(props: Props): ReactElement {
             Current Locktime
           </div>
           <div className="auction-chart__header__data-group__value">
-            { currentLockTime > -1 ? moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm') : '-'}
+            { currentLockTime > -1 ? moment(currentLockTime).format('YYYY-MM-DD HH:mm') : '-'}
           </div>
         </div>
         <div className="auction-chart__header__actions">
