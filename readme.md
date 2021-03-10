@@ -19,7 +19,3 @@ npm run build
 - Auction visualization
 - Offline UX support
 - Comparables search
-
-
-
-
