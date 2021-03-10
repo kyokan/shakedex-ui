@@ -53,7 +53,7 @@ export default function AuctionChart(props: Props): ReactElement {
   }
 
   const adjPrice = hoverPrice || Number(fromDollaryDoos(currentPrice));
-  const adjLocktime = hoverLocktime || moment(currentLockTime * 1000).format('YYYY-MM-DD HH:mm');
+  const adjLocktime = hoverLocktime || moment(currentLockTime).format('YYYY-MM-DD HH:mm');
 
   return (
     <Card className="auction-chart">
