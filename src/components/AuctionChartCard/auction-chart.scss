@@ -96,7 +96,7 @@
       &__actions {
         grid-column: 1 / span 2;
         grid-row: 2;
-        margin-top: 2rem;
+        margin: 1.5rem 0;
 
         button {
           width: 100%;
@@ -104,6 +104,5 @@
         }
       }
     }
-
   }
 }

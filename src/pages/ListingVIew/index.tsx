@@ -2,7 +2,6 @@ import React, {ChangeEvent, ReactElement, useCallback, useEffect, useState} from
 import {useDispatch} from "react-redux";
 
 import AppContent from "../../components/AppContent";
-import SystemMessage, {SystemMessageType} from "../../components/SystemMessage";
 import Button, {ButtonType} from "../../components/Button";
 import {
   fetchMoreRemoteAuctions,
@@ -22,10 +21,12 @@ import {formatNumber, fromDollaryDoos} from "../../util/number";
 import classNames from "classnames";
 import Icon from "../../components/Icon";
 import Modal, {ModalContent, ModalHeader} from "../ModalRoot";
+import {useDevMode} from "../../ducks/app";
 
 
 export default function ListingView() {
   const dispatch = useDispatch();
+  const devMode = useDevMode();
 
   useEffect(() => {
     dispatch(fetchRemoteAuctions());
@@ -43,7 +44,7 @@ export default function ListingView() {
       {/*}*/}
       <div className="listing-view__content">
         <RemoteAuctions />
-        <LocalAuctions />
+        { devMode && <LocalAuctions /> }
       </div>
     </AppContent>
   );

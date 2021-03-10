@@ -10,7 +10,9 @@
     @extend %row-nowrap;
     align-items: center;
     flex: 1 1 auto;
+    padding: 0 1rem;
     max-width: 48rem;
+    box-sizing: border-box;
 
     &__l {
       flex: 1 1 auto;

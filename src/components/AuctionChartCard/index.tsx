@@ -41,7 +41,9 @@ export default function AuctionChart(props: Props): ReactElement {
   const chartWidth = document.body.clientWidth < 768
     ? document.body.clientWidth
     : 768;
-  const chartHeight = chartWidth * (460.8 / 768);
+  const chartHeight = document.body.clientWidth < 768
+    ? chartWidth * (520 / 768)
+    : 460.8;
 
   useEffect(() => {
     setHoverLocktime(moment(currentLockTime).format('YYYY-MM-DD HH:mm'));

@@ -1,18 +1,28 @@
 @import "./src/util/variables";
 
 .settings {
-
-  &__card {
-    margin-top: 2rem;
-  }
-
   &__content {
     @extend %col-nowrap;
-    padding: 1rem;
+    align-items: center;
+    margin: 2rem 0;
+  }
+
+  &__card {
+    width: 48rem;
+
+    &__content {
+      @extend %col-nowrap;
+      padding: 1rem;
+    }
+  }
+
+  &__card + &__card {
+    margin-top: 2rem;
   }
 
   &__group {
     @extend %col-nowrap;
+    width: 100%;
     margin-bottom: 1rem;
 
     &__label {
@@ -28,6 +38,21 @@
       .input {
       }
     }
+
+    &--horizontal {
+      @extend %row-nowrap;
+      width: 100%;
+      align-items: center;
+
+      .settings__group {
+        &__content {
+          @extend %row-nowrap;
+          justify-content: flex-end;
+          flex: 1 1 auto;
+          margin-top: 0;
+        }
+      }
+    }
   }
 
   &__actions {
@@ -37,6 +62,19 @@
 
     .button {
       margin-left: .5rem;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-tablet) {
+  .settings {
+    &__content {
+      margin: .25rem 0;
+      width: fit-content;
+    }
+
+    &__card {
+      width: 100vw;
     }
   }
 }
