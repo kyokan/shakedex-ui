@@ -97,7 +97,7 @@ export const submitAuction = (auctionJSON: AuctionState) => async (dispatch: Dis
   }
 };
 
-const PER_PAGE = 10;
+const PER_PAGE = 20;
 
 export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
   const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=1&per_page=${PER_PAGE}`);
@@ -173,6 +173,8 @@ export const fetchAuctionByTLD = (tld: string) => async (dispatch: Dispatch, get
     auction: AuctionResponseJSON,
   } = await resp.json();
   const {auction} = json;
+
+  if (!auction) return;
 
   dispatch(addAuctionByTLD({
     name: auction.name,
@@ -362,7 +364,7 @@ export const useAuctionByTLD = (tld: string): AuctionState | null => {
     const { byTLD } = state.auctions;
     return byTLD[tld] || null;
   }, (a, b) => deepEqual(a, b));
-}
+};
 
 export const useAuctionsUploading = (): boolean => {
   return useSelector((state: { auctions: State }) => {

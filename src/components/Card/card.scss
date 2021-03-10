@@ -33,6 +33,16 @@
   .card {
     &__header {
       padding: .5rem 1rem;
+
+      &__title {
+        font-size: 1rem;
+      }
+
+      &__actions {
+        button {
+          padding: .25rem .5rem;
+        }
+      }
     }
   }
 }

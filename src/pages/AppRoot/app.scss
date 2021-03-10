@@ -41,4 +41,11 @@ html, body {
   html, body {
     font-size: 15px;
   }
+
+  .app {
+    &__content {
+      width: 100vw;
+      overflow-x: hidden;
+    }
+  }
 }

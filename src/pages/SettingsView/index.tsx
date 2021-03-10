@@ -5,12 +5,15 @@ import Card, {CardHeader} from "../../components/Card";
 import "./settings.scss";
 import Input from "../../components/Input";
 import Button, {ButtonType} from "../../components/Button";
-import {updateAPI, useAPI} from "../../ducks/app";
+import {setDevMode, updateAPI, useAPI, useDevMode} from "../../ducks/app";
 import {useDispatch} from "react-redux";
+import Toggle from "../../components/Toggle";
+import classNames from "classnames";
 
 export function SettingsView() {
   const dispatch = useDispatch();
   const { apiHost, apiKey } = useAPI();
+  const devMode = useDevMode();
   const [adjApiHost, setAdjHost] = useState(apiHost);
   const [adjApiKey, setAdjKey] = useState(apiKey);
   const hasChanged = apiHost !== adjApiHost || apiKey !== adjApiKey;
@@ -33,6 +36,10 @@ export function SettingsView() {
     dispatch(updateAPI(adjApiHost, adjApiKey));
   }, [hasChanged, adjApiHost, adjApiKey, dispatch]);
 
+  const toggleDeveloperMode = useCallback(() => {
+    dispatch(setDevMode(!devMode));
+  }, [devMode]);
+
   useEffect(() => {
     if (!hasChanged) return;
     setAdjHost(apiHost);
@@ -44,49 +51,65 @@ export function SettingsView() {
 
   return (
     <AppContent className="settings">
-      <Card className="settings__card">
-        <CardHeader title="API">
+      <div className="settings__content">
+        <Card className="settings__card">
+          <CardHeader title="API">
 
-        </CardHeader>
-        <div className="settings__content">
-          <SettingGroup title="Handshake RPC Url">
-            <Input
-              placeholder="http://127.0.0.1:12037"
-              value={adjApiHost}
-              onChange={e => setAdjHost(e.target.value)}
-            />
-          </SettingGroup>
-          <SettingGroup title="Handshake API Key">
-            <Input
-              placeholder="optional"
-              value={adjApiKey}
-              onChange={e => setAdjKey(e.target.value)}
-            />
-          </SettingGroup>
-        </div>
-        <div className="settings__actions">
-          <Button
-            btnType={ButtonType.secondary}
-            onClick={resetDefault}
-            disabled={isDefault}
-          >
-            Reset Default
-          </Button>
-          <Button
-            btnType={ButtonType.secondary}
-            disabled={!hasChanged}
-            onClick={cancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={!hasChanged}
-            onClick={saveAPI}
-          >
-            Save
-          </Button>
-        </div>
-      </Card>
+          </CardHeader>
+          <div className="settings__card__content">
+            <SettingGroup title="Handshake RPC Url">
+              <Input
+                placeholder="http://127.0.0.1:12037"
+                value={adjApiHost}
+                onChange={e => setAdjHost(e.target.value)}
+              />
+            </SettingGroup>
+            <SettingGroup title="Handshake API Key">
+              <Input
+                placeholder="optional"
+                value={adjApiKey}
+                onChange={e => setAdjKey(e.target.value)}
+              />
+            </SettingGroup>
+          </div>
+          <div className="settings__actions">
+            <Button
+              btnType={ButtonType.secondary}
+              onClick={resetDefault}
+              disabled={isDefault}
+            >
+              Reset Default
+            </Button>
+            <Button
+              btnType={ButtonType.secondary}
+              disabled={!hasChanged}
+              onClick={cancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!hasChanged}
+              onClick={saveAPI}
+            >
+              Save
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="settings__card">
+          <CardHeader title="General">
+
+          </CardHeader>
+          <div className="settings__card__content">
+            <SettingGroup title="Developer Mode" horizontal>
+              <Toggle
+                selected={devMode}
+                onClick={toggleDeveloperMode}
+              />
+            </SettingGroup>
+          </div>
+        </Card>
+      </div>
     </AppContent>
   )
 }
@@ -94,9 +117,14 @@ export function SettingsView() {
 function SettingGroup(props: {
   title: string | ReactNode;
   children: string | ReactNode;
+  horizontal?: boolean;
 }) {
   return (
-    <div className="settings__group">
+    <div
+      className={classNames("settings__group", {
+        'settings__group--horizontal': props.horizontal,
+      })}
+    >
       <div className="settings__group__label">
         {props.title}
       </div>

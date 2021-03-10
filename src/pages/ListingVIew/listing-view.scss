@@ -152,6 +152,12 @@
     }
   }
 
+  tbody {
+    td:nth-of-type(1) {
+      color: $btn-blue;
+    }
+  }
+
   td {
     @extend %ellipsis;
     @extend %row-nowrap;
@@ -200,6 +206,14 @@
 
     tbody {
       overflow-x: hidden;
+    }
+
+    td {
+      padding: .5rem .75rem;
+
+      &:nth-of-type(2) {
+        font-size: .83rem;
+      }
     }
   }
 }

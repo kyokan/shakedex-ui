@@ -4,11 +4,13 @@ import deepEqual from "deep-equal";
 export enum ActionTypes {
   INIT_APP = 'app/initApp',
   UPDATE_API = 'app/updateAPI',
+  SET_DEV_MODE = 'app/setDevMode',
 }
 
 export type State = {
   apiHost: string;
   apiKey: string;
+  devMode: boolean;
 }
 
 type Action<payload> = {
@@ -21,6 +23,7 @@ type Action<payload> = {
 const initialState: State = {
   apiHost: 'https://5pi.io/hsd',
   apiKey: '',
+  devMode: false,
 };
 
 export const initApp = (): Action<undefined> => ({
@@ -32,6 +35,11 @@ export const updateAPI = (apiHost: string, apiKey = ''): Action<{apiHost: string
   payload: { apiHost, apiKey },
 });
 
+export const setDevMode = (devMode: boolean): Action<boolean> => ({
+  type: ActionTypes.SET_DEV_MODE,
+  payload: devMode,
+});
+
 export default function appReducer(state: State = initialState, action: Action<any>): State {
   switch (action.type) {
     case ActionTypes.UPDATE_API:
@@ -40,6 +48,11 @@ export default function appReducer(state: State = initialState, action: Action<a
         apiHost: action.payload.apiHost,
         apiKey: action.payload.apiKey,
       };
+    case ActionTypes.SET_DEV_MODE:
+      return {
+        ...state,
+        devMode: action.payload,
+      };
     default:
       return state;
   }
@@ -47,6 +60,15 @@ export default function appReducer(state: State = initialState, action: Action<a
 
 export const useAPI = () => {
   return useSelector((state: { app: State}) => {
-    return state.app;
+    return {
+      apiHost: state.app.apiHost,
+      apiKey: state.app.apiKey,
+    };
+  }, (a, b) => deepEqual(a, b));
+};
+
+export const useDevMode = () => {
+  return useSelector((state: { app: State }) => {
+    return state.app.devMode;
   }, (a, b) => deepEqual(a, b));
 };

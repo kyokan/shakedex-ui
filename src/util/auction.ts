@@ -25,14 +25,16 @@ export class Auction {
 
   constructor(options: AuctionState | undefined | null) {
     this.tld = options?.name || '';
-    console.log(options)
     this.startPrice = options?.data[0].price || -1;
     this.endPrice = options?.data[options?.data.length - 1].price || -1;
     this.proposals = options?.data || [];
     this.startTime = String(this.proposals[0]?.lockTime).length === 10
       ? new Date(this.proposals[0]?.lockTime * 1000)
       : new Date(this.proposals[0]?.lockTime);
-    this.endTime = new Date(this.proposals[this.proposals.length - 1]?.lockTime * 1000);
+    const endTime = this.proposals[this.proposals.length - 1]?.lockTime;
+    this.endTime = String(endTime).length === 10
+      ? new Date(endTime * 1000)
+      : new Date(endTime);
     this.priceDecrement = Math.abs(this.proposals[1]?.price - this.startPrice);
     this.durationDays = moment(this.endTime).diff(moment(this.startTime), 'd') + 1;
 
