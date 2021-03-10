@@ -32,7 +32,7 @@ export class Auction {
     this.startTime = String(this.proposals[0]?.lockTime).length === 10
       ? new Date(this.proposals[0]?.lockTime * 1000)
       : new Date(this.proposals[0]?.lockTime);
-    this.endTime = new Date(this.proposals[this.proposals.length - 1]?.lockTime * 1000);
+    this.endTime = new Date(this.proposals[this.proposals.length - 1]?.lockTime);
     this.priceDecrement = Math.abs(this.proposals[1]?.price - this.startPrice);
     this.durationDays = moment(this.endTime).diff(moment(this.startTime), 'd') + 1;
 
