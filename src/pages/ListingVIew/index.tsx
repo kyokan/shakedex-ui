@@ -22,6 +22,7 @@ import classNames from "classnames";
 import Icon from "../../components/Icon";
 import Modal, {ModalContent, ModalHeader} from "../ModalRoot";
 import {useDevMode} from "../../ducks/app";
+import Input from "../../components/Input";
 
 
 export default function ListingView() {
@@ -68,6 +69,9 @@ function RemoteAuctions(): ReactElement {
     <Card className="remote-auctions">
       <CardHeader title="Auctions">
         {errMessage && <div className="local-auctions__error-message">{errMessage}</div>}
+        {/*<Input*/}
+        {/*  placeholder="Search by keyword"*/}
+        {/*/>*/}
         <SubmitButton
           setErrorMessage={setErrorMessage}
         />
@@ -161,7 +165,7 @@ function LocalAuctions(): ReactElement {
 
 function RemoteAuctionRow(props: { auctionIndex: number }) {
   const auctionOption = useRemoteAuctionByIndex(props.auctionIndex);
-  const currentTime = useCurrentBlocktime();
+  const currentTime = new Date();
   const history = useHistory();
 
   if (!auctionOption) return <></>;
@@ -170,7 +174,7 @@ function RemoteAuctionRow(props: { auctionIndex: number }) {
   const status = auction.getStatus(currentTime);
   const statusText = auction.getStatusText(currentTime);
   const price = auction.getCurrentPrice(currentTime);
-
+  console.log(status);
   return (
     <tr
       onClick={() => history.push(`/a/${auction.tld}`)}

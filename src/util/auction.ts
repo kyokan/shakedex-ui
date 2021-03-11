@@ -85,7 +85,7 @@ export class Auction {
 
     switch (status) {
       case "COMPLETED":
-        return `SOLD`;
+        return `Sold`;
       case "CANCELLED":
         return 'Cancelled';
       case "LISTED":

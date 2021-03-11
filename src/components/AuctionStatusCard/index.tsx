@@ -25,6 +25,8 @@ export default function AuctionStatusCard(props: Props) {
     })();
   }, [tld]);
 
+  if (!auctionState) return <></>;
+
   return (
     <Card className="auction-status">
       {auction && renderAuctionStatus(auction)}
@@ -56,7 +58,7 @@ function renderDomainStatus(props: Props) {
 }
 
 function renderAuctionStatus(auction: Auction) {
-  const currentBlocktime = useCurrentBlocktime();
+  const currentBlocktime = new Date();
   const statusText = auction?.getStatusText(currentBlocktime);
 
   return (
