@@ -50,6 +50,12 @@ export default function AuctionChart(props: Props): ReactElement {
     setHoverPrice(Number(fromDollaryDoos(currentPrice)));
   }, [currentPrice, currentLockTime]);
 
+  const status = auction?.getStatus(currentBlocktime);
+
+  if (status !== 'LISTED' && status !== 'STARTED') {
+    return <></>;
+  }
+
   if (!auctionState || auctionState.spendingStatus) {
     return <></>;
   }

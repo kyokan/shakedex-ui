@@ -18,6 +18,7 @@ export enum ActionTypes {
   SET_REMOTE_AUCTIONS = 'auctions/setRemoteAuctions',
   DELETE_LOCAL_AUCTION = 'auctions/deleteLocalAuction',
   ADD_AUCTION_BY_TLD = 'auctions/addAuctionByTLD',
+  SET_SEARCH = 'auctions/setSearch',
 }
 
 type Action<payload> = {
@@ -36,6 +37,7 @@ export type State = {
   };
   remotePage: number;
   remoteTotal: number;
+  search: string;
 }
 
 export type ProposalState = {
@@ -80,6 +82,14 @@ const initialState = {
   remotePage: 1,
   remoteTotal: 0,
   byTLD: {},
+  search: '',
+};
+
+export const setSearchParam = (search: string): Action<string> => {
+  return {
+    type: ActionTypes.SET_SEARCH,
+    payload: search,
+  };
 };
 
 export const submitAuction = (auctionJSON: AuctionState) => async (dispatch: Dispatch) => {
@@ -106,7 +116,8 @@ export const submitAuction = (auctionJSON: AuctionState) => async (dispatch: Dis
 const PER_PAGE = 20;
 
 export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
-  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=1&per_page=${PER_PAGE}`);
+  const {search} = getState().auctions;
+  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=1&per_page=${PER_PAGE}${search && `&search=${search}`}`);
   const json: {
     auctions: AuctionResponseJSON[],
     total: number,
@@ -141,11 +152,11 @@ export const fetchRemoteAuctions = () => async (dispatch: Dispatch, getState: ()
 };
 
 export const fetchMoreRemoteAuctions = () => async (dispatch: Dispatch, getState: () => {auctions: State}) => {
-  const { auctions: {remotePage, remote}} = getState();
+  const { auctions: {remotePage, remote, search}} = getState();
 
   if (remote.length < remotePage * PER_PAGE) return;
 
-  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=${remotePage + 1}&per_page=${PER_PAGE}`);
+  const resp = await fetch(`${SHAKEDEX_URL}/api/v1/auctions?page=${remotePage + 1}&per_page=${PER_PAGE}${search && `&search=${search}`}`);
   const json: {
     auctions: AuctionResponseJSON[],
     total: number,
@@ -267,6 +278,11 @@ export const uploadAuctions = (filelist: FileList | null) => async (
 
 export default function auctionsReducer(state: State = initialState, action: Action<any>): State {
   switch (action.type) {
+    case ActionTypes.SET_SEARCH:
+      return {
+        ...state,
+        search: action.payload,
+      };
     case ActionTypes.UPDATE_REMOTE_PAGE:
       return {
         ...state,
