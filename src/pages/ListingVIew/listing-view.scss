@@ -12,6 +12,7 @@
   }
 
   .upload-auction-btn {
+    flex: 0 0 auto;
     position: relative;
 
     input[type=file] {
@@ -22,6 +23,10 @@
       height: 100%;
       opacity: 0;
       cursor: pointer;
+    }
+
+    .icon {
+      display: none;
     }
   }
 }
@@ -146,6 +151,21 @@
 .remote-auctions {
   margin-bottom: 2rem;
 
+  .input-group {
+    margin: 0 1rem;
+    width: 13.125rem;
+  }
+
+  tr.loading {
+    @extend %row-nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .lds-roller {
+    transform: scale(.5);
+  }
+
   &__content {
     table {
       max-height: 24rem;
@@ -188,6 +208,17 @@
 
   .remote-auctions {
     margin-bottom: .25rem;
+
+    .upload-auction-btn {
+      > span {
+        display: none;
+      }
+
+      .icon {
+        display: block;
+        margin-right: 0;
+      }
+    }
   }
 
   .local-auctions,

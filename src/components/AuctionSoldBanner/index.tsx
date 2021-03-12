@@ -45,7 +45,11 @@ export default function AuctionSoldBanner(props: Props) {
   }, [auctionState?.spendingTxHash]);
 
   if (!auctionState || auctionState.spendingStatus !== "COMPLETED") {
-    return <></>
+    return <></>;
+  }
+
+  if (purchaseAmount < 0) {
+    return <></>;
   }
 
   return (
