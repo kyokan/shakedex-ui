@@ -3,19 +3,40 @@
 .input {
   @extend %regular-font;
   padding: .5rem 1rem;
-  border: 1px solid rgba($black, .2);
-  border-radius: .125rem;
   outline: none;
-  background-color: rgba($black, .1);
-  width: calc(100% - 2rem);
   color: $white;
+  background-color: transparent;
+  border: none;
+  width: calc(100% - 2rem);
 
   &::placeholder {
     color: rgba($white, .2);
   }
+}
+
+.input-group {
+  @extend %row-nowrap;
+  background-color: rgba($black, .1);
+  border: 1px solid rgba($black, .2);
+  border-radius: .125rem;
 
   &:focus-within {
     background-color: rgba($black, .2);
     border-bottom: 1px solid $btn-blue;
+  }
+
+  .icon {
+    color: $white;
+    opacity: .1;
+    transition: opacity 150ms ease-in-out;
+    margin-right: .5rem;
+
+    &:hover {
+      opacity: .2;
+    }
+
+    &:active {
+      opacity: .3;
+    }
   }
 }

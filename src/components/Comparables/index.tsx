@@ -3,6 +3,7 @@ import Card, {CardHeader} from "../Card";
 
 import "./comparables.scss";
 import Toggle from "../Toggle";
+import {Loader} from "../Loader";
 
 type Props = {
   tld: string;
@@ -62,10 +63,14 @@ function Table(props: Props) {
     source: string;
   }[]>([]);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     (async function() {
+      setLoading(true);
       const json = await fetchComps(props.tld);
       setComps(json || []);
+      setLoading(false);
     })();
   }, [props.tld]);
 
@@ -81,7 +86,7 @@ function Table(props: Props) {
       </thead>
       <tbody>
       {
-        comps.length > 0 && comps.map(comp => (
+        !loading && comps.length > 0 && comps.map(comp => (
           <tr>
             <td>{comp.domain}</td>
             <td>{comp.date}</td>
@@ -91,10 +96,17 @@ function Table(props: Props) {
         ))
       }
       {
-        !comps.length && (
+        !loading && !comps.length && (
           <div className="comparables__empty-row">
             No data to display
           </div>
+        )
+      }
+      {
+        loading && (
+          <tr className="loading">
+            <Loader scale={.5} />
+          </tr>
         )
       }
       </tbody>

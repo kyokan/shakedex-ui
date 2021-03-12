@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ReactElement, useCallback, useEffect, useState} from "react";
+import React, {ChangeEvent, MouseEvent, ReactElement, useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
 
 import AppContent from "../../components/AppContent";
@@ -6,7 +6,7 @@ import Button, {ButtonType} from "../../components/Button";
 import {
   fetchMoreRemoteAuctions,
   fetchRemoteAuctions, readJSON,
-  removeLocalAuction, submitAuction,
+  removeLocalAuction, setSearchParam, submitAuction,
   uploadAuctions,
   useLocalAuctionByIndex,
   useLocalAuctions, useRemoteAuctionByIndex, useRemoteAuctions
@@ -22,16 +22,13 @@ import classNames from "classnames";
 import Icon from "../../components/Icon";
 import Modal, {ModalContent, ModalHeader} from "../ModalRoot";
 import {useDevMode} from "../../ducks/app";
-import Input from "../../components/Input";
-
+import {InputWithIcon} from "../../components/Input";
+import {Simulate} from "react-dom/test-utils";
+import {Loader} from "../../components/Loader";
 
 export default function ListingView() {
   const dispatch = useDispatch();
   const devMode = useDevMode();
-
-  useEffect(() => {
-    dispatch(fetchRemoteAuctions());
-  }, []);
 
   return (
     <AppContent className="listing-view">
@@ -56,22 +53,50 @@ function RemoteAuctions(): ReactElement {
   const dispatch = useDispatch();
   const [el, setElement] = useState<HTMLTableSectionElement | null>(null);
   const [errMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const onScroll = useCallback(() => {
+
+  useEffect(() => {
+    (async function() {
+      await dispatch(fetchRemoteAuctions());
+      setLoading(false);
+    })();
+  }, []);
+
+  const onScroll = useCallback(async () => {
     if (!el) return;
     const {offsetHeight, scrollHeight, scrollTop} = el;
     if (offsetHeight + scrollTop >= scrollHeight) {
-      dispatch(fetchMoreRemoteAuctions());
+      await dispatch(fetchMoreRemoteAuctions());
     }
   }, [el]);
+
+  const onSearch = useCallback(async () => {
+    setLoading(true);
+    await dispatch(fetchRemoteAuctions());
+    setLoading(false);
+  }, []);
+
+  const onSearchInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchParam(e.target.value));
+  }, []);
 
   return (
     <Card className="remote-auctions">
       <CardHeader title="Auctions">
         {errMessage && <div className="local-auctions__error-message">{errMessage}</div>}
-        {/*<Input*/}
-        {/*  placeholder="Search by keyword"*/}
-        {/*/>*/}
+        <InputWithIcon
+          placeholder="Search by keyword"
+          material="search"
+          size={1.5}
+          onChange={onSearchInputChange}
+          onIconClick={onSearch}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              onSearch();
+            }
+          }}
+        />
         <SubmitButton
           setErrorMessage={setErrorMessage}
         />
@@ -88,7 +113,7 @@ function RemoteAuctions(): ReactElement {
           </thead>
           <tbody ref={(element) => setElement(element)} onScroll={onScroll}>
           {
-            remoteAuctions.map((auctionOption, i) => {
+            !loading && remoteAuctions.map((auctionOption, i) => {
               const auction = new Auction(auctionOption);
               return (
                 <RemoteAuctionRow
@@ -99,12 +124,17 @@ function RemoteAuctions(): ReactElement {
             })
           }
           {
-            !remoteAuctions.length && (
+            !remoteAuctions.length && !loading && (
               <tr className="remote-auctions__empty-row">
                 No data to display
               </tr>
             )
           }
+          {loading && (
+            <tr className="loading">
+              <Loader />
+            </tr>
+          )}
           </tbody>
         </table>
       </div>
@@ -174,7 +204,7 @@ function RemoteAuctionRow(props: { auctionIndex: number }) {
   const status = auction.getStatus(currentTime);
   const statusText = auction.getStatusText(currentTime);
   const price = auction.getCurrentPrice(currentTime);
-  console.log(status);
+
   return (
     <tr
       onClick={() => history.push(`/a/${auction.tld}`)}
@@ -329,7 +359,11 @@ function SubmitButton(props: {
 
   return (
     <Button className="upload-auction-btn">
-      Submit Listing
+      <span>Submit Listing</span>
+      <Icon
+        material="upload"
+        size={1.5}
+      />
       <input
         type="file"
         accept="application/json"

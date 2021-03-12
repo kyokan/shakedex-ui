@@ -85,6 +85,7 @@ module.exports = [
       envPlugin,
       new HtmlWebpackPlugin({
         template: `./static/index.html`,
+        favicon: './static/assets/icons/favicon.ico',
         filename: `index.html`,
       }),
     ],
